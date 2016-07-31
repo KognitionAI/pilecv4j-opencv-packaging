@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.jiminger</groupId>
+    <artifactId>opencv-packaging</artifactId>
+    <version>3.1.0</version>
+  </parent>
+  <artifactId>opencv-lib-jar</artifactId>
+  <name>opencv-lib-jar (${project.version})</name>
+  <description>Package all opencv with lib</description>
+
+  <dependencies>
+    <dependency>
+      <groupId>opencv</groupId>
+      <artifactId>opencv</artifactId>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+     <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install-opencv-jar</id>
+            <phase>install</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <file>${opencv-jar-path}</file>
+              <generatePom>true</generatePom>
+              <packaging>jar</packaging>
+              <version>3.1.0</version>
+              <groupId>opencv</groupId>
+              <artifactId>opencv</artifactId>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>            
+      <!-- any other plugins -->
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <descriptors>
+            <descriptor>assemblies/withlib.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

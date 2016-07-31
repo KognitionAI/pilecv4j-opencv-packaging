@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <groupId>com.jiminger</groupId>
+  <artifactId>opencv-packaging</artifactId>
+  <version>3.1.0</version>
+  <name>Jiminger utilities (${project.version})</name>
+  <description>Various Utilities for coding support</description>
+  <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+
+  <properties>
+    <opencv-root>${OPENCV_INSTALL}</opencv-root>
+    <opencv-jar>opencv-310.jar</opencv-jar>
+    <opencv-version>${project.version}</opencv-version>
+  </properties>
+  
+  <profiles>
+    <profile>
+      <id>linux-x86</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>i386</arch>
+        </os>
+      </activation>
+      <properties>
+      </properties>
+    </profile>
+    <profile>
+      <id>linux-64bit</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <opencv-lib-name>libopencv_java310.so</opencv-lib-name>
+        <opencv-lib-path>${opencv-root}/share/OpenCV/java</opencv-lib-path>
+        <opencv-jar-path>${opencv-root}/share/OpenCV/java/${opencv-jar}</opencv-jar-path>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86_64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <opencv-lib-name>opencv_java310.dll</opencv-lib-name>
+        <opencv-lib-path>${opencv-root}/build/java/x64</opencv-lib-path>
+        <opencv-jar-path>${opencv-root}/build/java/${opencv-jar}</opencv-jar-path>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+      <properties>
+        <opencv-lib-name>opencv_java310.dll</opencv-lib-name>
+        <opencv-lib-path>${opencv-root}/build/java/x86</opencv-lib-path>
+        <opencv-jar-path>${opencv-root}/build/java/${opencv-jar}</opencv-jar-path>
+      </properties>
+    </profile>
+  </profiles>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>opencv</groupId>
+        <artifactId>opencv</artifactId>
+        <version>${opencv-version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <modules>
+    <module>install-jar</module>
+    <module>package-native</module>
+  </modules>
+
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+          <debug>true</debug>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,13 @@
+junk.txt
+
+#Eclipse
+.classpath
+.project
+.settings
+.\#*
+\#*
+
+# mvn temps
+*/target/
+
+
