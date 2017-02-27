@@ -15,6 +15,10 @@ if [ ! -f "$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake" ]; then
     exit 1
 fi
 
+if [ "$MVN" = "" ]; then
+    MVN=mvn
+fi
+
 OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
@@ -27,10 +31,16 @@ echo "OPENCV_SHORT_VERSION=$OPENCV_SHORT_VERSION"
 echo ""
 echo "Setting version in the project."
 
-/home/jim/utils/maven/bin/mvn versions:set -DnewVersion=$OPENCV_VERSION
+$MVN versions:set -DnewVersion=$OPENCV_VERSION
 if [ "$?" -ne 0 ]; then
     echo "Failed to set version. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
 fi
+
+export OPENCV_VERSION
+export OPENCV_SHORT_VERSION
+export OPENCV_INSTALL
+
+$MVN clean install
 
 
