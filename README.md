@@ -1,16 +1,13 @@
 
-
-Install the opencv packaging using maven by pointing to the opencv install by setting OPENCV_INSTALL.
-
-The version of the install should match the pom.xml version. At the time of this writing that 3.2.0.
+Install the opencv packaging using maven by pointing to the opencv install by setting OPENCV_INSTALL and running the build script.
 
 On windows, from git-bash you can invoke something like:
 
-```OPENCV_INSTALL=`cygpath -w /c/Users/user/projects/opencv-3.2.0` OPENCV_VERSION=3.2.0 OPENCV_SHORT_VERSION=320 mvn clean install```
+```MVN=[mvn command] OPENCV_INSTALL=`cygpath -w /c/Users/user/projects/opencv-3.2.0` package.sh```
 
 on Linux it's more straightforward
 
-OPENCV_INSTALL="[absolute path to opencv-3.2.0]" OPENCV_VERSION=3.2.0 OPENCV_SHORT_VERSION=320 mvn clean install
+```MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.2.0]" ./package.sh```
 
 When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' installed. These are not done by default when following the instructions. The following worked for me after installing ant:
 

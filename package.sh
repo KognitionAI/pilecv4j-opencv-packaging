@@ -42,5 +42,13 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 
 $MVN clean install
+if [ "$?" -ne 0 ]; then
+    echo "Failed to install packaged opencv.Please manually reset the project using \"git reset --hard HEAD\""
+    exit 1
+fi
+
+git reset --hard HEAD
+git clean -dxf
+
 
 
