@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <groupId>com.jiminger</groupId>
   <artifactId>opencv-packaging</artifactId>
-  <version>3.1.0</version>
+  <version>0.0</version>
   <name>Jiminger utilities (${project.version})</name>
   <description>Various Utilities for coding support</description>
   <packaging>pom</packaging>
@@ -10,7 +10,7 @@
 
   <properties>
     <opencv-root>${OPENCV_INSTALL}</opencv-root>
-    <opencv-short-version>310</opencv-short-version>
+    <opencv-short-version>${OPENCV_SHORT_VERSION}</opencv-short-version>
     <opencv-jar>opencv-${opencv-short-version}.jar</opencv-jar>
     <opencv-version>${project.version}</opencv-version>
   </properties>
