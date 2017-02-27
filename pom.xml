@@ -10,7 +10,8 @@
 
   <properties>
     <opencv-root>${OPENCV_INSTALL}</opencv-root>
-    <opencv-jar>opencv-310.jar</opencv-jar>
+    <opencv-short-version>310</opencv-short-version>
+    <opencv-jar>opencv-${opencv-short-version}.jar</opencv-jar>
     <opencv-version>${project.version}</opencv-version>
   </properties>
   
@@ -35,7 +36,7 @@
         </os>
       </activation>
       <properties>
-        <opencv-lib-name>libopencv_java310.so</opencv-lib-name>
+        <opencv-lib-name>libopencv_java${opencv-short-version}.so</opencv-lib-name>
         <opencv-lib-path>${opencv-root}/share/OpenCV/java</opencv-lib-path>
         <opencv-jar-path>${opencv-root}/share/OpenCV/java/${opencv-jar}</opencv-jar-path>
       </properties>
@@ -49,7 +50,7 @@
         </os>
       </activation>
       <properties>
-        <opencv-lib-name>opencv_java310.dll</opencv-lib-name>
+        <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
         <opencv-lib-path>${opencv-root}/build/java/x64</opencv-lib-path>
         <opencv-jar-path>${opencv-root}/build/java/${opencv-jar}</opencv-jar-path>
       </properties>
@@ -63,7 +64,7 @@
         </os>
       </activation>
       <properties>
-        <opencv-lib-name>opencv_java310.dll</opencv-lib-name>
+        <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
         <opencv-lib-path>${opencv-root}/build/java/x86</opencv-lib-path>
         <opencv-jar-path>${opencv-root}/build/java/${opencv-jar}</opencv-jar-path>
       </properties>

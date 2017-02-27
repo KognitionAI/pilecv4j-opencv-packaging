@@ -40,7 +40,7 @@
               <file>${opencv-jar-path}</file>
               <generatePom>true</generatePom>
               <packaging>jar</packaging>
-              <version>3.1.0</version>
+              <version>${project.version}</version>
               <groupId>opencv</groupId>
               <artifactId>opencv</artifactId>
             </configuration>
