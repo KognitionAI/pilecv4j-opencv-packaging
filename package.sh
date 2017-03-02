@@ -10,9 +10,13 @@ if [ ! -d "$OPENCV_INSTALL" ]; then
     exit 1
 fi
 
-if [ ! -f "$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake" ]; then
-    echo "Can't find the build file \"$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake\" in order to extract the version."
-    exit 1
+OPENCV_MAKE="$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake"
+if [ ! -f "$OPENCV_MAKE" ]; then
+    OPENCV_MAKE="$OPENCV_INSTALL/build/OpenCVConfig-version.cmake"
+    if [ ! -f "$OPENCV_MAKE" ]; then
+        echo "Can't find the build file \"$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake\" or \"$OPENCV_INSTALL/build/OpenCVConfig-version.cmake\" in order to extract the version."
+        exit 1
+    fi
 fi
 
 if [ "$MVN" = "" ]; then
@@ -23,7 +27,7 @@ if [ "$GIT" = "" ]; then
     GIT=git
 fi
 
-OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_INSTALL/share/OpenCV/OpenCVConfig-version.cmake" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
+OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_MAKE" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
 
 echo "==========================================="
