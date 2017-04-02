@@ -21,6 +21,6 @@ When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' ins
 
 ```JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/[user]/utils/opencv-3.2.0 ..```
 
-The windows distributions of OpenCV (at least 3.1.0 and 3.2.0) already have the binaries included in them.
+The windows distributions of OpenCV (at least 3.1.0 and 3.2.0) already have the binaries included in them. I haven't ever built them from source on Windows.
 
-Note: This doesn't package the actual binal distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately.
+Note: This doesn't package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately.
