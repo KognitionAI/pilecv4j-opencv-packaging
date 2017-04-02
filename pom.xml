@@ -77,7 +77,6 @@
         <groupId>opencv</groupId>
         <artifactId>opencv</artifactId>
         <version>${opencv-version}</version>
-        <optional>true</optional>
       </dependency>
     </dependencies>
   </dependencyManagement>
