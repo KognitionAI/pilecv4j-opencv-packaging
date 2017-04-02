@@ -3,8 +3,8 @@
   <groupId>com.jiminger</groupId>
   <artifactId>opencv-packaging</artifactId>
   <version>0.0</version>
-  <name>Jiminger utilities (${project.version})</name>
-  <description>Various Utilities for coding support</description>
+  <name>OpenCV Packaging (${project.version})</name>
+  <description>Package OpenCV into jar files for use with com.jiminger.utilities</description>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
 
