@@ -38,6 +38,7 @@
       </activation>
       <properties>
         <opencv-lib-name>libopencv_java${opencv-short-version}.so</opencv-lib-name>
+        <opencv-lib-alt-path>/junkkkk</opencv-lib-alt-path>
         <opencv-lib-path>${opencv-java-root}</opencv-lib-path>
         <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
       </properties>
@@ -52,6 +53,7 @@
       </activation>
       <properties>
         <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
+        <opencv-lib-alt-path>${opencv-java-root}</opencv-lib-alt-path>
         <opencv-lib-path>${opencv-java-root}/x64</opencv-lib-path>
         <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
       </properties>
@@ -66,6 +68,7 @@
       </activation>
       <properties>
         <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
+        <opencv-lib-alt-path>${opencv-java-root}</opencv-lib-alt-path>
         <opencv-lib-path>${opencv-java-root}/x86</opencv-lib-path>
         <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
       </properties>

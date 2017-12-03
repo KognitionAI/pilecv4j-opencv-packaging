@@ -25,5 +25,12 @@
         <include>${opencv-lib-name}</include>
       </includes>
     </fileSet>
+    <fileSet>
+      <directory>${opencv-lib-alt-path}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>${opencv-lib-name}</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>
