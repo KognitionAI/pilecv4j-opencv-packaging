@@ -29,7 +29,9 @@ fi
 OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_MAKE" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
 
-OPENCV_JAVA_INSTALL_ROOT="$(find "$OPENCV_INSTALL" -name java -type d)"
+OPENCV_JAVA_JAR="opencv-$OPENCV_SHORT_VERSION.jar"
+
+OPENCV_JAVA_INSTALL_ROOT="$(dirname "$(find "$OPENCV_INSTALL" -name "$OPENCV_JAVA_JAR" -type f)")"
 
 echo "==========================================="
 echo "Building with:"

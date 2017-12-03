@@ -28,27 +28,29 @@
     </resources>
      <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.8</version>
         <executions>
           <execution>
-            <id>install-opencv-jar</id>
-            <phase>install</phase>
-            <goals>
-              <goal>install-file</goal>
-            </goals>
+            <phase>process-resources</phase>
             <configuration>
-              <file>${opencv-jar-path}</file>
-              <generatePom>true</generatePom>
-              <packaging>jar</packaging>
-              <version>${project.version}</version>
-              <groupId>opencv</groupId>
-              <artifactId>opencv</artifactId>
+              <tasks>
+                <checksum todir="${project.build.directory}" format="CHECKSUM">
+                  <fileset dir="${opencv-lib-path}" erroronmissingdir="false">
+                    <include name="${opencv-lib-name}"/>
+                  </fileset>
+                  <fileset dir="${opencv-lib-alt-path}" erroronmissingdir="false">
+                    <include name="${opencv-lib-name}"/>
+                  </fileset>
+                </checksum>
+              </tasks>
             </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
           </execution>
         </executions>
-      </plugin>            
-      <!-- any other plugins -->
+      </plugin>
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
