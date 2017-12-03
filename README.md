@@ -37,7 +37,7 @@ I managed to build OpenCV (3.3.1) on Windows using the following. (Hat Tip, Osam
 
 I installed Python in the default location (C:\Python27) and CMake found it.
 
-I created a directory called "opencv" and made 2 subdirectories: 'source,' and 'build.' In the 'source' directory I checked out of github the main opencv tree and also the opencv_contrib. From the build directory using a CMD prompt I ran
+I created a directory called "opencv" and made 2 subdirectories: 'source,' and 'build.' In the 'source' directory I checked out of github the main opencv tree and also the opencv_contrib. Switch to the version you want using *git checkout _tag_.* From the build directory using a CMD prompt you can run:
 
 ```cmake -G "Visual Studio 14 2015 Win64" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
 
