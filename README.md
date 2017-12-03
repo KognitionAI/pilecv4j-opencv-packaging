@@ -4,7 +4,7 @@ This project will package an `OpenCV` distribution's Java extentions for use wit
 
 Install the opencv packaging using maven by pointing to the opencv install by setting OPENCV_INSTALL and running the build script.
 
-On windows, from git-bash you can invoke something like:
+On windows, from git-bash, MSYS/MinGW, or Cygwin you can invoke something like:
 
 ```MVN=/c/utils/apache-3.2.2/bin/mvn OPENCV_INSTALL=`cygpath -w /c/Users/[user]/projects/opencv-3.2.0` ./package.sh```
 
@@ -21,6 +21,28 @@ When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' ins
 
 ```JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/[user]/utils/opencv-3.2.0 ..```
 
-The windows distributions of OpenCV (at least 3.1.0 and 3.2.0) already have the binaries included in them. I haven't ever built them from source on Windows.
+## Buildng OpenCV on Windows
 
-Note: This doesn't package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately.
+I managed to build OpenCV (3.3.1) on Windows using the following.
+
+1. Make sure Java is installed.
+1. Install apache ANT (unzip to a directory on windows)
+1. Install the Windows version of CMake.
+1. You'll need a Visual Studio C/C++ installed.
+1. Install Python 2.7.
+1. Set the environment varialbes:
+  1. JAVA_HOME=[e.g. C:/Program Files/Java/jdk1.8.0_92]
+  1. Add $JAVA_HOME/bin to your windows PATH (User path works)
+  1. Add the directory that 'ant.bat' is in to your windows PATH (User path works)
+
+I installed Python in the default location (C:\Python27) and CMake found it.
+
+I created a directory called "opencv" and made 2 subdirectories: 'source,' and 'build.' In the 'source' directory I checked out of github the main opencv tree and also the opencv_contrib. From the build directory using a CMD prompt I ran
+
+```cmake -G "Visual Studio 14 2015" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
+
+Then load the .sln file into Visual Studio.
+Build the INSTALL project which will build everything else and install it to the directory you specified above.
+
+Note: This doesn't package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately on Linux. If you followed the instructions for the Windows build, or you installed OpenCV from the Windows installers then the .dll file built for java has all the other libs built into it. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you don't use "BUILD_SHARED_LIBS=false" then you will need the OpenCV DLLs on your path even on Windows.
+
