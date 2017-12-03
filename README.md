@@ -23,7 +23,7 @@ When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' ins
 
 ## Buildng OpenCV on Windows
 
-I managed to build OpenCV (3.3.1) on Windows using the following.
+I managed to build OpenCV (3.3.1) on Windows using the following. (Hat Tip, Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) )
 
 1. Make sure Java is installed.
 1. Install apache ANT (unzip to a directory on windows)
@@ -39,7 +39,9 @@ I installed Python in the default location (C:\Python27) and CMake found it.
 
 I created a directory called "opencv" and made 2 subdirectories: 'source,' and 'build.' In the 'source' directory I checked out of github the main opencv tree and also the opencv_contrib. From the build directory using a CMD prompt I ran
 
-```cmake -G "Visual Studio 14 2015" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
+```cmake -G "Visual Studio 14 2015 Win64" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
+
+Obviously if you have a different Visual Studio installed you'll select that one for the -G option.
 
 Then load the .sln file into Visual Studio.
 Build the INSTALL project which will build everything else and install it to the directory you specified above.
