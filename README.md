@@ -31,9 +31,9 @@ I managed to build OpenCV (3.3.1) on Windows using the following. (Hat Tip, Osam
 1. You'll need a Visual Studio C/C++ installed.
 1. Install Python 2.7.
 1. Set the environment varialbes:
-  1. JAVA_HOME=[e.g. C:/Program Files/Java/jdk1.8.0_92]
-  1. Add $JAVA_HOME/bin to your windows PATH (User path works)
-  1. Add the directory that 'ant.bat' is in to your windows PATH (User path works)
+    1. JAVA_HOME=[e.g. C:/Program Files/Java/jdk1.8.0_92]
+    1. Add $JAVA_HOME/bin to your windows PATH (User path works)
+    1. Add the directory that 'ant.bat' is in to your windows PATH (User path works)
 
 I installed Python in the default location (C:\Python27) and CMake found it.
 
