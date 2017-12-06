@@ -10,7 +10,7 @@ On windows, from git-bash, MSYS/MinGW, or Cygwin you can invoke something like:
 
 on Linux it's slightly more straightforward
 
-x```GIT=[path to git] MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.3.1 install dir]" ./package.sh```
+```GIT=[path to git] MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.3.1 install dir]" ./package.sh```
 
 `MVN` defaults to `mvn` therefore assuming it's on the path
 `GIT` defaults to `git` therefore assuming it's on the path
