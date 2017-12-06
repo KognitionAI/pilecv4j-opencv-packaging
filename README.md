@@ -6,11 +6,11 @@ Install the opencv packaging using maven by pointing to the opencv install by se
 
 On windows, from git-bash, MSYS/MinGW, or Cygwin you can invoke something like:
 
-```MVN=/c/utils/apache-3.2.2/bin/mvn OPENCV_INSTALL=`cygpath -w /c/Users/[user]/projects/opencv-3.2.0` ./package.sh```
+```MVN=/c/utils/apache-3.2.2/bin/mvn OPENCV_INSTALL=`cygpath -w /c/Users/[user]/projects/opencv-3.3.1` ./package.sh```
 
 on Linux it's slightly more straightforward
 
-```GIT=[path to git] MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.2.0]" ./package.sh```
+x```GIT=[path to git] MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.3.1 install dir]" ./package.sh```
 
 `MVN` defaults to `mvn` therefore assuming it's on the path
 `GIT` defaults to `git` therefore assuming it's on the path
