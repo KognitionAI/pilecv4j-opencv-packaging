@@ -15,15 +15,28 @@ on Linux it's slightly more straightforward
 `MVN` defaults to `mvn` therefore assuming it's on the path
 `GIT` defaults to `git` therefore assuming it's on the path
 
-## Buildng OpenCV on Linux
+## Buliding OpenCV
 
-When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' installed. These are not done by default when following the instructions. The following worked for me after installing ant:
+The latest version of the image processing utilities requires `opencv_contrib` in order to get the SIFT algorithm. The requires OpenCV to be built on whatever system you're going to run since `opencv_contrib` isn't distributed as a binary. If you don't care about using the SIFT algorithm you can install OpenCV from the binaries on Windows. Since you'll need to build on Linux anyway (or at least it seems that way for 3.3.1) you might as well follow the instructions here to build both the `opencv` and `opencv_contrib` projects.
 
-```JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/[user]/utils/opencv-3.2.0 ..```
+Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) ) for bootstrapping me on building this for Windows.
 
-## Buildng OpenCV on Windows
+First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to the version you want using *git checkout _[tag]_* (currently it's `3.3.1`). 
 
-I managed to build OpenCV (3.3.1) on Windows using the following. (Hat Tip, Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) )
+
+### Buildng OpenCV on Linux
+
+When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' installed. These are not done by default when following the instructions on OpenCVs website. The following worked for me _after installing ant_:
+
+``` bash
+JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/jim/utils/opencv-3.3.1 -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules ../sources/opencv
+```
+
+Then you can build using the standard Linux build tools (`make clean`, `make`, `make install`).
+
+### Buildng OpenCV on Windows
+
+I managed to build OpenCV (3.3.1) on Windows using the following:
 
 1. Make sure Java is installed.
 1. Install apache ANT (unzip to a directory on windows)
