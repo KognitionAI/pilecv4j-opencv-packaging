@@ -17,11 +17,11 @@ on Linux it's slightly more straightforward
 
 ## Buliding OpenCV
 
-The latest version of the image processing utilities requires `opencv_contrib` in order to get the SIFT algorithm. The requires OpenCV to be built on whatever system you're going to run since `opencv_contrib` isn't distributed as a binary. If you don't care about using the SIFT algorithm you can install OpenCV from the binaries on Windows. Since you'll need to build on Linux anyway (or at least it seems that way for 3.3.1) you might as well follow the instructions here to build both the `opencv` and `opencv_contrib` projects.
+The latest version of the image processing utilities requires `opencv_contrib` in order to get the SIFT algorithm. This requires OpenCV to be built for whatever system you're going to run it on since `opencv_contrib` isn't distributed as a binary. If you don't care about using the SIFT algorithm you can install OpenCV from the binaries on Windows. Since you'll need to build on Linux anyway (or at least it seems that way for 3.3.1) you might as well follow the instructions here to build both the `opencv` and `opencv_contrib` projects.
 
 Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) ) for bootstrapping me on building this for Windows.
 
-First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to the version you want using *git checkout _[tag]_* (currently it's `3.3.1`). 
+First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to your desired opencv version using *git checkout _[tag]_* (the current released tag is `3.3.1`). 
 
 
 ### Buildng OpenCV on Linux
@@ -50,7 +50,7 @@ I managed to build OpenCV (3.3.1) on Windows using the following:
 
 I installed Python in the default location (C:\Python27) and CMake found it.
 
-I created a directory called "opencv" and made 2 subdirectories: 'source,' and 'build.' In the 'source' directory I checked out of github the main opencv tree and also the opencv_contrib. Switch to the version you want using *git checkout _tag_.* From the build directory using a CMD prompt you can run:
+To generate the build projecys, from the build directory using a CMD prompt run:
 
 ```cmake -G "Visual Studio 14 2015 Win64" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
 
