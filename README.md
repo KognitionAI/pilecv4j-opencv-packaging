@@ -23,6 +23,7 @@ Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile o
 
 First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to your desired opencv version using *git checkout _[tag]_* (the current released tag is `3.3.1`). 
 
+_Note: This doesn't explicitly package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately on Linux. If you followed the instructions for the Windows build, or you installed OpenCV from the Windows installers then the .dll file built for java has all the other libs statically linked into it. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you don't use `BUILD_SHARED_LIBS=false` when building yourself then you will need the OpenCV DLLs on your path on Windows._
 
 ### Buildng OpenCV on Linux
 
@@ -59,5 +60,4 @@ Obviously if you have a different Visual Studio installed you'll select that one
 Then load the .sln file into Visual Studio.
 Build the INSTALL project which will build everything else and install it to the directory you specified above.
 
-Note: This doesn't explicitly package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately on Linux. If you followed the instructions for the Windows build, or you installed OpenCV from the Windows installers then the .dll file built for java has all the other libs statically linked into it. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you don't use "BUILD_SHARED_LIBS=false" when building yourself then you will need the OpenCV DLLs on your path on Windows.
 
