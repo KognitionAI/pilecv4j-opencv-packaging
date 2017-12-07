@@ -2,7 +2,7 @@
 
 This project will package an `OpenCV` distribution's Java extentions for use with the `com.jiminger.utilities` libraries as well as install the jar file into the local maven repository. The OpenCV distribution will first need to be built following the instructions for the particular platform on the [OpenCV website](http://opencv.org/). I've included the steps that worked for me on Windows and Linux below. See the section "Building OpenCV." If you don't want the SIFT algorithm, and you're on Windows, it's possible to just install the OpenCV binaries. See the section on building for more details.
 
-Install the opencv packaging using maven by pointing to the opencv install by setting OPENCV_INSTALL and running the build script.
+Once you've installed or built the Open CV binary distribution, you can package and install the packaged jar by pointing to the opencv install by setting OPENCV_INSTALL and running the `package.sh` script as follows:
 
 On windows, from git-bash, MSYS/MinGW, or Cygwin you can invoke something like:
 
