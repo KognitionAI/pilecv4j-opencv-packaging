@@ -1,6 +1,6 @@
 # *WARNING: Any changes made to the project and left uncommitted will be undone upon a successful run of `package.sh`*
 
-This project will package an `OpenCV` distribution's Java extentions for use with the `com.jiminger.utilities` libraries as well as install the jar file into the local maven repository. The OpenCV distribution will first need to be built following the instructions for the particular platform on the [OpenCV website](http://opencv.org/). On Windows the distribution already contains binaries so there's no additional step necessary. On Linux you'll need to `make` opencv it before following the instructions below. See the section `Building OpenCV on Linux` below.
+This project will package an `OpenCV` distribution's Java extentions for use with the `com.jiminger.utilities` libraries as well as install the jar file into the local maven repository. The OpenCV distribution will first need to be built following the instructions for the particular platform on the [OpenCV website](http://opencv.org/). I've included the steps that worked for me on Windows and Linux below. See the section "Building OpenCV." If you don't want the SIFT algorithm, and you're on Windows, it's possible to just install the OpenCV binaries. See the section on building for more details.
 
 Install the opencv packaging using maven by pointing to the opencv install by setting OPENCV_INSTALL and running the build script.
 
@@ -15,6 +15,8 @@ on Linux it's slightly more straightforward
 `MVN` defaults to `mvn` therefore assuming it's on the path
 `GIT` defaults to `git` therefore assuming it's on the path
 
+_Note: This doesn't explicitly package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately on Linux. If you followed the instructions for the Windows build, or you installed OpenCV from the Windows installers then the .dll file built for java has all the other libs statically linked into it. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you don't use `BUILD_SHARED_LIBS=false` when building yourself then you will need the OpenCV DLLs on your path on Windows._
+
 ## Buliding OpenCV
 
 The latest version of the image processing utilities requires `opencv_contrib` in order to get the SIFT algorithm. This requires OpenCV to be built for whatever system you're going to run it on since `opencv_contrib` isn't distributed as a binary. If you don't care about using the SIFT algorithm you can install OpenCV from the binaries on Windows. Since you'll need to build on Linux anyway (or at least it seems that way for 3.3.1) you might as well follow the instructions here to build both the `opencv` and `opencv_contrib` projects.
@@ -22,8 +24,6 @@ The latest version of the image processing utilities requires `opencv_contrib` i
 Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) for bootstrapping me on building this for Windows.
 
 First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to your desired opencv version using *git checkout _[tag]_* (the current released tag is `3.3.1`). 
-
-_Note: This doesn't explicitly package the actual binary distribution of OpenCV (though I'm considering doing that). It packages the Java JNI extension that allows OpenCV to be used from Java. That means you still need to install and use the binaries appropriately on Linux. If you followed the instructions for the Windows build, or you installed OpenCV from the Windows installers then the .dll file built for java has all the other libs statically linked into it. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you don't use `BUILD_SHARED_LIBS=false` when building yourself then you will need the OpenCV DLLs on your path on Windows._
 
 ### Buildng OpenCV on Linux
 
@@ -51,7 +51,7 @@ I managed to build OpenCV (3.3.1) on Windows using the following:
 
 I installed Python in the default location (C:\Python27) and CMake found it.
 
-To generate the build projecys, from the build directory using a CMD prompt run:
+To generate the build projects, from the build directory using a CMD prompt run:
 
 ```cmake -G "Visual Studio 14 2015 Win64" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
 
