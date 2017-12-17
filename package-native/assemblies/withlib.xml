@@ -15,28 +15,21 @@
   </dependencySets>
   <fileSets>
     <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>*.MD5</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.build.outputDirectory}</directory>
       <outputDirectory>/</outputDirectory>
     </fileSet>
     <fileSet>
-      <directory>${opencv-lib-path}</directory>
+      <directory>${opencv-libs-path}</directory>
       <outputDirectory>/</outputDirectory>
       <includes>
-        <include>${opencv-lib-name}</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>${opencv-lib-alt-path}</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>${opencv-lib-name}</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>${opencv-lib-name}.MD5</include>
+        <include>*</include>
       </includes>
     </fileSet>
   </fileSets>

@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <groupId>com.jiminger</groupId>
   <artifactId>opencv-packaging</artifactId>
-  <version>0.0</version>
+  <version>3.3.1</version>
   <name>OpenCV Packaging (${project.version})</name>
   <description>Package OpenCV into jar files for use with com.jiminger.utilities</description>
   <packaging>pom</packaging>
@@ -11,69 +11,11 @@
   <properties>
     <opencv-java-root>${OPENCV_JAVA_INSTALL_ROOT}</opencv-java-root>
     <opencv-short-version>${OPENCV_SHORT_VERSION}</opencv-short-version>
-    <opencv-subdir>${}</opencv-subdir>
     <opencv-jar>opencv-${opencv-short-version}.jar</opencv-jar>
     <opencv-version>${project.version}</opencv-version>
+    <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
   </properties>
   
-  <profiles>
-    <profile>
-      <id>linux-x86</id>
-      <activation>
-        <os>
-          <family>linux</family>
-          <arch>i386</arch>
-        </os>
-      </activation>
-      <properties>
-      </properties>
-    </profile>
-    <profile>
-      <id>linux-64bit</id>
-      <activation>
-        <os>
-          <family>linux</family>
-          <arch>amd64</arch>
-        </os>
-      </activation>
-      <properties>
-        <opencv-lib-name>libopencv_java${opencv-short-version}.so</opencv-lib-name>
-        <opencv-lib-alt-path>/junkkkk</opencv-lib-alt-path>
-        <opencv-lib-path>${opencv-java-root}</opencv-lib-path>
-        <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
-      </properties>
-    </profile>
-    <profile>
-      <id>windows-x86_64</id>
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>amd64</arch>
-        </os>
-      </activation>
-      <properties>
-        <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
-        <opencv-lib-alt-path>${opencv-java-root}</opencv-lib-alt-path>
-        <opencv-lib-path>${opencv-java-root}/x64</opencv-lib-path>
-        <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
-      </properties>
-    </profile>
-    <profile>
-      <id>windows-x86</id>
-      <activation>
-        <os>
-          <family>windows</family>
-          <arch>x86</arch>
-        </os>
-      </activation>
-      <properties>
-        <opencv-lib-name>opencv_java${opencv-short-version}.dll</opencv-lib-name>
-        <opencv-lib-alt-path>${opencv-java-root}</opencv-lib-alt-path>
-        <opencv-lib-path>${opencv-java-root}/x86</opencv-lib-path>
-        <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
-      </properties>
-    </profile>
-  </profiles>
 
   <dependencyManagement>
     <dependencies>

@@ -41,7 +41,44 @@ echo "OPENCV_SHORT_VERSION=$OPENCV_SHORT_VERSION"
 echo "OPENCV_JAVA_INSTALL_ROOT=$OPENCV_JAVA_INSTALL_ROOT"
 echo "==========================================="
 
+# copy the libs into the project in a flat directory structure
+
+OPENCV_LIBS_PATH=./package-native/src/temp/libs
 echo ""
+echo "Copying libs to \"$OPENCV_LIBS_PATH\""
+
+mkdir -p "$OPENCV_LIBS_PATH"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to create the directory to copy the libs into. \"$OPENCV_LIBS_PATH\""
+    exit 1
+fi
+
+rm -rf "$OPENCV_LIBS_PATH"/* 2>/dev/null
+
+find "$OPENCV_INSTALL" -name "*.dll" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
+find "$OPENCV_INSTALL" -name "*.so" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
+
+echo "Files to package:"
+ls -l "$OPENCV_LIBS_PATH"
+
+echo "Generating the properties file"
+mkdir -p ./package-native/src/main/resources
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to create the directory to generate the properties file. \"./package-native/src/main/resources\""
+    exit 1
+fi
+
+rm -f ./package-native/src/main/resources/com.jiminger.lib.properties 2>/dev/null
+
+LIBS=$(ls "$OPENCV_LIBS_PATH")
+
+for lib in $LIBS; do
+    echo "library.$lib=$lib" >> ./package-native/src/main/resources/com.jiminger.lib.properties
+done
+
+echo "com.jiminger.lib.properties is:"
+cat ./package-native/src/main/resources/com.jiminger.lib.properties
+
 echo "Setting version in the project."
 
 $MVN versions:set -DnewVersion=$OPENCV_VERSION

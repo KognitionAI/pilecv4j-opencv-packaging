@@ -5,11 +5,15 @@
   <parent>
     <groupId>com.jiminger</groupId>
     <artifactId>opencv-packaging</artifactId>
-    <version>0.0</version>
+    <version>3.3.1</version>
   </parent>
   <artifactId>opencv-lib-jar</artifactId>
   <name>opencv-lib-jar (${project.version})</name>
   <description>Package all opencv with lib</description>
+
+  <properties>
+    <opencv-libs-path>src/temp/libs</opencv-libs-path>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -36,11 +40,8 @@
             <configuration>
               <tasks>
                 <checksum todir="${project.build.directory}" format="CHECKSUM">
-                  <fileset dir="${opencv-lib-path}" erroronmissingdir="false">
-                    <include name="${opencv-lib-name}"/>
-                  </fileset>
-                  <fileset dir="${opencv-lib-alt-path}" erroronmissingdir="false">
-                    <include name="${opencv-lib-name}"/>
+                  <fileset dir="${opencv-libs-path}">
+                    <include name="*"/>
                   </fileset>
                 </checksum>
               </tasks>
