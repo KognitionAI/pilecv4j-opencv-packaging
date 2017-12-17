@@ -166,9 +166,9 @@ if [ "$SKIPC" != "true" ]; then
         usage
     fi
 
-    "$GIT" clone git@github.com:opencv/opencv.git
+    "$GIT" clone https://github.com/opencv/opencv.git
     if [ $? -ne 0 ]; then
-        echo "Failed to clone the main opencv repo using \"$GIT clone git@github.com:opencv/opencv.git\""
+        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv.git\""
         exit 1
     fi
 
@@ -184,9 +184,9 @@ if [ "$SKIPC" != "true" ]; then
     fi
     cd ..
 
-    "$GIT" clone git@github.com:opencv/opencv_contrib.git
+    "$GIT" clone https://github.com/opencv/opencv_contrib.git
     if [ $? -ne 0 ]; then
-        echo "Failed to clone the main opencv repo using \"$GIT clone git@github.com:opencv/opencv.git\""
+        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv_contrib.git\""
         exit 1
     fi
 
