@@ -5,21 +5,51 @@ MAIN_DIR="$(dirname "$0")"
 cd "$MAIN_DIR"
 PROJDIR="$(pwd -P)"
 
-# if we're on Msys then augment the PATH with the windows PATH
+OS=`uname`
+
 WINDOWS=
-BUILD_SHARED=
-if [ "$(uname | grep -i mingw)" != "" ]; then
+if [ "$(echo "$OS" | grep MINGW)" != "" ]; then
+    PLAT=MINGW
     WINDOWS=true
-    #BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
+elif [ "$(echo "$OS" | grep CYGWIN)" != "" ]; then
+    PLAT=CYGWIN
+    WINDOWS=true
+elif [ "$(echo "OS" | grep Linux)" != "" ]; then
+    PLAT=Linux
+else
+    echo "Sorry, I don't know how to handle building for \"$OS.\" Currently this works on:"
+    echo "      1) Windows using MSYS2"
+    echo "      2) Windows using Cygwin"
+    echo "      3) Linux"
+    exit 1
+fi
+
+BUILD_SHARED=
+if [ "$WINDOWS" = "true" ]; then
+    BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
     
     cpath() {
         cygpath "$1"
     }
+
+    if [ "$PLAT" = "CYGWIN" ]; then
+        cwpath() {
+            cygpath -w "$1"
+        }
+    else
+        cwpath() {
+            ehco "$1"
+        }
+    fi
 else
     INSTALL_TARGET=install
     
     cpath() {
         echo "$1"
+    }
+    
+    cwpath() {
+        ehco "$1"
     }
 fi
 set +e
@@ -89,11 +119,16 @@ if [ ! -d "$WORKING_DIR" ]; then
     usage
 fi
 
+# ========================================
+# Make the WORKING_DIR an absolute path
 cd "$WORKING_DIR"
 if [ $? -ne 0 ]; then
     echo "ERROR: \"$WORKING_DIR\" is not a valid directory."
     usage
 fi
+# change working directory to absolute path
+WORKING_DIR="$(pwd -P)"
+# ========================================
 
 # ========================================
 # set and test git command
@@ -273,11 +308,11 @@ fi
 echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/opencv/cmake.out"
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$WORKING_DIR/opencv/installed\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$WORKING_DIR/opencv/installed" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 else
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$WORKING_DIR/opencv/installed\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$WORKING_DIR/opencv/installed" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 fi
 
 if [ $? -ne 0 ]; then
@@ -302,6 +337,9 @@ if [ "$(echo "$MAKE" | grep -i msbuild)" != "" ]; then
     # We're on windows using Visual Studio
     INSTALL_TARGET=INSTALL.vcxproj
     RELEASE="-p:Configuration=Release"
+    if [ "$PARALLEL_BUILD" != "" ]; then
+        PARALLEL_BUILD="-m"
+    fi
 else
     # otherwise we're running MAKE
     INSTALL_TARGET=install
