@@ -14,7 +14,7 @@ if [ "$(echo "$OS" | grep MINGW)" != "" ]; then
 elif [ "$(echo "$OS" | grep CYGWIN)" != "" ]; then
     PLAT=CYGWIN
     WINDOWS=true
-elif [ "$(echo "OS" | grep Linux)" != "" ]; then
+elif [ "$(echo "$OS" | grep Linux)" != "" ]; then
     PLAT=Linux
 else
     echo "Sorry, I don't know how to handle building for \"$OS.\" Currently this works on:"
