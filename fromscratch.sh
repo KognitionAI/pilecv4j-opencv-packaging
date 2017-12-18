@@ -59,12 +59,18 @@ usage() {
     echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.3.1\"" 
     echo " Options:"
     echo "    -w /path/to/workingDirectory: this is /tmp by default."
-    echo "    -jN:  specify the number of threads to use when running make. Doesn't apply to VS projects"
+    echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
+    echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. This is probably "
     echo "       necessary when building using VS on Windows or you get Win32 arch. e.g. -G \"Visual Studio 14 2015 Win64\""
     echo "    -sc: This will \"skip the checkout\" of the opencv code. If you're playing with different options"
     echo "       then once the code is checked out, using -sc will allow subsequent runs to progress faster."
     echo "       This doesn't work unless the working directory remains the same between runs."
+    echo "    -sp: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't"
+    echo "       package them in a jar file for use with com.jiminger.utilities"
+    echo "    -static|-no-static: force the build to statically link (dynamically link for \"-no-static\") the JNI libraries."
+    echo "        By default, the JNI library is statically linked on Windows and dynamically linked on Linux."
+    echo "    --help|-help: print this message"
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -79,6 +85,7 @@ OPENCV_VERSION=
 PARALLEL_BUILD=
 CMAKE_GENERATOR=
 SKIPC=
+SKIPP=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
@@ -102,6 +109,18 @@ while [ $# -gt 0 ]; do
             ;;
         "-sc")
             SKIPC=true
+            shift
+            ;;
+        "-sp")
+            SKIPP=true
+            shift
+            ;;
+        "-static")
+            BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
+            shift
+            ;;
+        "-no-static")
+            BUILD_SHARED="-DBUILD_SHARED_LIBS=true"
             shift
             ;;
         *)
@@ -361,8 +380,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh
-if [ $? -ne 0 ]; then
-    echo "The packaing step seems to have failed. I can't continue."
-    exit 1
+if [ "$SKIPP" != "true" ]; then
+    OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh
+    if [ $? -ne 0 ]; then
+        echo "The packaing step seems to have failed. I can't continue."
+        exit 1
+    fi
 fi
