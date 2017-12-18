@@ -130,6 +130,7 @@ while [ $# -gt 0 ]; do
 done
 
 if [ "$OPENCV_VERSION" = "" ]; then
+    echo "ERROR: you didn't specify and opencv version"
     usage
 fi
 
