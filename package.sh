@@ -26,12 +26,63 @@ if [ "$GIT" = "" ]; then
     GIT=git
 fi
 
+###############################################################
+# Setup some platforM specifics
+###############################################################
+OS=`uname`
+
+WINDOWS=
+if [ "$(echo "$OS" | grep MINGW)" != "" ]; then
+    PLAT=MINGW
+    WINDOWS=true
+elif [ "$(echo "$OS" | grep CYGWIN)" != "" ]; then
+    PLAT=CYGWIN
+    WINDOWS=true
+elif [ "$(echo "$OS" | grep Linux)" != "" ]; then
+    PLAT=Linux
+else
+    echo "Sorry, I don't know how to handle building for \"$OS.\" Currently this works on:"
+    echo "      1) Windows using MSYS2"
+    echo "      2) Windows using Cygwin"
+    echo "      3) Linux"
+    exit 1
+fi
+
+BUILD_SHARED=
+if [ "$WINDOWS" = "true" ]; then
+    BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
+
+    cpath() {
+        cygpath "$1"
+    }
+
+    if [ "$PLAT" = "CYGWIN" ]; then
+        cwpath() {
+            cygpath -w "$1"
+        }
+    else
+        cwpath() {
+            ehco "$1"
+        }
+    fi
+else
+    INSTALL_TARGET=install
+
+    cpath() {
+        echo "$1"
+    }
+
+    cwpath() {
+        echo "$1"
+    }
+fi
+###############################################################
+
 OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_MAKE" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
 
 OPENCV_JAVA_JAR="opencv-$OPENCV_SHORT_VERSION.jar"
-
-OPENCV_JAVA_INSTALL_ROOT="$(dirname "$(find "$OPENCV_INSTALL" -name "$OPENCV_JAVA_JAR" -type f)")"
+OPENCV_JAVA_INSTALL_ROOT="$(cwpath "$(dirname "$(find "$OPENCV_INSTALL" -name "$OPENCV_JAVA_JAR" -type f)")")"
 
 echo "==========================================="
 echo "Building with:"
