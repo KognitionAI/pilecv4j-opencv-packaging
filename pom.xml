@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <groupId>com.jiminger</groupId>
   <artifactId>opencv-packaging</artifactId>
-  <version>3.3.1</version>
+  <version>0</version>
   <name>OpenCV Packaging (${project.version})</name>
   <description>Package OpenCV into jar files for use with com.jiminger.utilities</description>
   <packaging>pom</packaging>

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 set -e
 MAIN_DIR="$(dirname "$0")"
@@ -38,7 +38,7 @@ if [ "$WINDOWS" = "true" ]; then
         }
     else
         cwpath() {
-            ehco "$1"
+            echo "$1"
         }
     fi
 else
@@ -61,8 +61,7 @@ usage() {
     echo "    -w /path/to/workingDirectory: this is /tmp by default."
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
-    echo "    -G cmake-generator: specifially specify the cmake generator to use. This is probably "
-    echo "       necessary when building using VS on Windows or you get Win32 arch. e.g. -G \"Visual Studio 14 2015 Win64\""
+    echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
     echo "    -sc: This will \"skip the checkout\" of the opencv code. If you're playing with different options"
     echo "       then once the code is checked out, using -sc will allow subsequent runs to progress faster."
     echo "       This doesn't work unless the working directory remains the same between runs."
@@ -79,6 +78,11 @@ usage() {
     echo "      and will attempt infer the JAVA_HOME environment variable from there."
     exit 1
 }
+
+CMAKE_ARCH=
+if [ "$WINDOWS" = "true" -a "$(arch | grep 64)" != "" ]; then
+    CMAKE_ARCH="-Ax64"
+fi
 
 WORKING_DIR=/tmp
 OPENCV_VERSION=
@@ -328,11 +332,11 @@ fi
 echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/opencv/cmake.out"
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 else
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 fi
 
 if [ $? -ne 0 ]; then

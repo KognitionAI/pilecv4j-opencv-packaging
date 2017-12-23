@@ -62,7 +62,7 @@ if [ "$WINDOWS" = "true" ]; then
         }
     else
         cwpath() {
-            ehco "$1"
+            echo "$1"
         }
     fi
 else
