@@ -24,9 +24,7 @@ else
     exit 1
 fi
 
-BUILD_SHARED=
 if [ "$WINDOWS" = "true" ]; then
-    BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
     
     cpath() {
         cygpath "$1"
@@ -67,8 +65,8 @@ usage() {
     echo "       This doesn't work unless the working directory remains the same between runs."
     echo "    -sp: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't"
     echo "       package them in a jar file for use with com.jiminger.utilities"
-    echo "    -static|-no-static: force the build to statically link (dynamically link for \"-no-static\") the JNI libraries."
-    echo "        By default, the JNI library is statically linked on Windows and dynamically linked on Linux."
+    echo "    -static(default)|-no-static: force the build to statically link (dynamically link for \"-no-static\") "
+    echo "        the JNI libraries. By default, the JNI library is statically linked on all platform builds."
     echo "    --help|-help: print this message"
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
@@ -90,6 +88,7 @@ PARALLEL_BUILD=
 CMAKE_GENERATOR=
 SKIPC=
 SKIPP=
+BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")

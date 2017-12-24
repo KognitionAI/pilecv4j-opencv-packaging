@@ -8,7 +8,7 @@ Alternatively, if you're not interested in packaging up the binaries but only bu
 
 This doesn't currently explicitly package the actual binary distribution of OpenCV (though I'm working on it). However, if you build with static linking (which is done automatically on Windows), then the JNI library that's built contains all of the other necessary object code so you don't need to manage a local install of OpenCV binaries. If you don't build that way you will still need to install and use the opencv binaries appropriately (this is the default on Linux).
 
-Optioanlly, on Windows, you can simply `package.sh` the binary distribution downloaded and installed from the OpenCV website. The DLLs installed using OpenCV's Windows installers already has the the other libs statically linked into the JNI library. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you manually build for Windows with `BUILD_SHARED_LIBS=false` or use the option "-no-static" when using `fromscratch.sh` then you will need the OpenCV DLLs on your path on Windows to use the packaged JNI native libraries.
+Optioanlly, on Windows, you can simply `package.sh` the binary distribution downloaded and installed from the OpenCV website. The DLLs installed using OpenCV's Windows installers already has the the other libs statically linked into the JNI library. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you manually build for Windows with `BUILD_SHARED_LIBS=true` or use the option "-no-static" when using `fromscratch.sh` then you will need the OpenCV .DLLs/.so's on your PATH to use the packaged JNI native libraries.
 
 ## Buliding OpenCV `fromscratch.sh`
 
@@ -21,15 +21,14 @@ Optioanlly, on Windows, you can simply `package.sh` the binary distribution down
     -w /path/to/workingDirectory: this is /tmp by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
-    -G cmake-generator: specifially specify the cmake generator to use. This is probably 
-       necessary when building using VS on Windows or you get Win32 arch. e.g. -G "Visual Studio 14 2015 Win64"
+    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
     -sc: This will "skip the checkout" of the opencv code. If you're playing with different options
        then once the code is checked out, using -sc will allow subsequent runs to progress faster.
        This doesn't work unless the working directory remains the same between runs.
     -sp: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't
        package them in a jar file for use with com.jiminger.utilities
-    -static|-no-static: force the build to statically link (dynamically link for "-no-static") the JNI libraries.
-        By default, the JNI library is statically linked on Windows and dynamically linked on Linux.
+    -static(default)|-no-static: force the build to statically link (dynamically link for "-no-static") 
+        the JNI libraries. By default, the JNI library is statically linked on all platform builds.
     --help|-help: print this message
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
