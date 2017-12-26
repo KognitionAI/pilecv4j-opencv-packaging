@@ -1,5 +1,7 @@
 #!/bin/bash
 
+NATIVE_PROP_FILE=net.dempsy.lib.properties
+
 if [ "$OPENCV_INSTALL" = "" ]; then
     echo "OPENCV_INSTALL must be set to point to the path where OpenCV is installed."
     exit 1
@@ -119,16 +121,16 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-rm -f ./package-native/src/main/resources/com.jiminger.lib.properties 2>/dev/null
+rm -f ./package-native/src/main/resources/$NATIVE_PROP_FILE 2>/dev/null
 
 LIBS=$(ls "$OPENCV_LIBS_PATH")
 
 for lib in $LIBS; do
-    echo "library.$lib=$lib" >> ./package-native/src/main/resources/com.jiminger.lib.properties
+    echo "library.$lib=$lib" >> ./package-native/src/main/resources/$NATIVE_PROP_FILE
 done
 
-echo "com.jiminger.lib.properties is:"
-cat ./package-native/src/main/resources/com.jiminger.lib.properties
+echo "$NATIVE_PROP_FILE is:"
+cat ./package-native/src/main/resources/$NATIVE_PROP_FILE
 
 echo "Setting version in the project."
 

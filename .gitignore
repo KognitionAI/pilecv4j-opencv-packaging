@@ -12,4 +12,4 @@ junk.txt
 
 *.versionsBackup
 package-native/src/temp
-package-native/src/main/resources/com.jiminger.lib.properties
+package-native/src/main/resources/net.dempsy.lib.properties
