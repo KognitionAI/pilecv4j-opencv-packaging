@@ -14,11 +14,21 @@
     <opencv-jar>opencv-${opencv-short-version}.jar</opencv-jar>
     <opencv-version>${project.version}</opencv-version>
     <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
+
+    <!-- generator and platform.options are set in the profile -->
+    <cmake.generator>${generator}</cmake.generator>
+    <cmake.options>${platform.option}</cmake.options>
+    <build.type>debug</build.type>
   </properties>
   
 
   <dependencyManagement>
     <dependencies>
+      <dependency>
+        <groupId>com.jiminger</groupId>
+        <artifactId>lib-image-native</artifactId>
+        <version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>opencv</groupId>
         <artifactId>opencv</artifactId>
@@ -29,8 +39,77 @@
 
   <modules>
     <module>install-jar</module>
+    <module>lib-image-native</module>
     <module>package-native</module>
   </modules>
+  
+  <profiles>
+    <profile>
+      <id>linux-x86</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>i386</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>linux-x86_32</platform>
+        <generator>Unix Makefiles</generator>
+        <platform.option></platform.option>
+        <lib.prefix>lib</lib.prefix>
+        <lib.extension>so</lib.extension>
+      </properties>
+    </profile>
+    <profile>
+      <id>linux-64bit</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>linux-x86_64</platform>
+        <generator>Unix Makefiles</generator>
+        <platform.option></platform.option>
+        <lib.prefix>lib</lib.prefix>
+        <lib.extension>so</lib.extension>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86_64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>windows-x86_64</platform>
+        <platform.option>-Ax64</platform.option>
+        <generator>YOU MUST SPECIFY THE GENERATOR ON THE COMMAND LINE!!!! use: -Dgenerator="generator"</generator>
+        <lib.prefix></lib.prefix>
+        <lib.extension>dll</lib.extension>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>windows-x86_32</platform>
+        <swtartifact>org.eclipse.swt.win32.win32.x86_64</swtartifact>
+        <generator>YOU MUST SPECIFY THE GENERATOR ON THE COMMAND LINE!!!! use: -Dgenerator="generator"</generator>
+        <platform.option></platform.option>
+        <lib.prefix></lib.prefix>
+        <lib.extension>dll</lib.extension>
+      </properties>
+    </profile>
+  </profiles>
 
   <build>
     <plugins>

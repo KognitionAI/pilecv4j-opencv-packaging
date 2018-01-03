@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.jiminger</groupId>
+    <artifactId>opencv-packaging</artifactId>
+    <version>0</version>
+    <relativePath>..</relativePath>
+  </parent>
+
+  <artifactId>lib-image-native</artifactId>
+  <packaging>jar</packaging>
+  <name>lib-image-native Java side of the Native CvRaster functionality</name>
+
+</project>

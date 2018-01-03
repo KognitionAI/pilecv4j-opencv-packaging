@@ -115,14 +115,6 @@ echo "Files to package:"
 ls -l "$OPENCV_LIBS_PATH"
 
 echo "Generating the properties file"
-mkdir -p ./package-native/src/main/resources
-if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to create the directory to generate the properties file. \"./package-native/src/main/resources\""
-    exit 1
-fi
-
-rm -f ./package-native/src/main/resources/$NATIVE_PROP_FILE 2>/dev/null
-
 LIBS=$(ls "$OPENCV_LIBS_PATH")
 
 for lib in $LIBS; do

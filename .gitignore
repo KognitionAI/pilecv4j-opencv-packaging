@@ -12,4 +12,5 @@ junk.txt
 
 *.versionsBackup
 package-native/src/temp
-package-native/src/main/resources/net.dempsy.lib.properties
+
+**/bin/
