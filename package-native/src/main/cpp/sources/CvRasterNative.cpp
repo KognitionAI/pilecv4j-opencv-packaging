@@ -21,8 +21,7 @@ JNIEXPORT jobject JNICALL Java_com_jiminger_image_CvRasterNative__1getData(JNIEn
     return NULL;
   }
 
-  cv::Size size = mat->size();
-  jlong capacity = ((jlong)size.width * (jlong)size.height);
+  jlong capacity = ((jlong)mat->total() * (jlong)mat->elemSize());
 
   return env->NewDirectByteBuffer(mat->ptr(0), capacity);
 }
