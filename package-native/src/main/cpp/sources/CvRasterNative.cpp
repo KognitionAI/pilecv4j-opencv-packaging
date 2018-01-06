@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <opencv2/core/mat.hpp>
+#include <opencv2/highgui.hpp>
 
 static void throwIllegalStateException( JNIEnv *env, const char* message ) {
   static const char* iseClassName = "java/lang/IllegalStateException";
@@ -24,6 +25,11 @@ JNIEXPORT jobject JNICALL Java_com_jiminger_image_CvRasterNative__1getData(JNIEn
   jlong capacity = ((jlong)mat->total() * (jlong)mat->elemSize());
 
   return env->NewDirectByteBuffer(mat->ptr(0), capacity);
+}
+
+JNIEXPORT void JNICALL Java_com_jiminger_image_CvRasterNative_showImage(JNIEnv *, jclass, jlong native) {
+  cv::Mat* mat = (cv::Mat*) native;
+  cv::imshow("Window", (*mat));
 }
 
 JNIEXPORT jlong JNICALL Java_com_jiminger_image_CvRasterNative__1getDataAddress(JNIEnv * env, jclass, jlong native) {

@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 3.4)
 project (utilities.jiminger.com)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 find_package(Java REQUIRED)
 find_package(JNI REQUIRED)
 
