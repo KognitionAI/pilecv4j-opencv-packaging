@@ -89,7 +89,7 @@ CMAKE_GENERATOR=
 SKIPC=
 SKIPP=
 BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
-BUILD_PYTHON="-DBUILD_opencv_python2=false"
+BUILD_PYTHON="-DBUILD_opencv_python2=false -DBUILD_opencv_python3=false -DBUILD_opencv_python_bindings_generator"
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
