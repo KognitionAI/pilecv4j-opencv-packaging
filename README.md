@@ -1,18 +1,18 @@
 # *WARNING: Any changes made to the project and left uncommitted will be undone upon a successful run of `package.sh` or `fromscratch.sh`*
 
-This project will build from scratch, package into a jar file, and install into the local maven repository, an `OpenCV` distribution's Java extentions. You can use this project to optionally simply build the opencv libraries. 
+This project will allow you to build from scratch, package into a jar file, and install into the local maven repository, an `OpenCV` distribution's Java extensions including `opencv_contrib`. If you don't care about packaging up the OpenCv distribution for use with Java, you can simply use this project to build the OpenCv libraries. 
 
-If you are writing OpenCV code in java and you use this project to build and package the native binaries, you can use `com.jiminger.utilities` to load them from your code with alomost no work. This project will package the binaries into a jar file so it will work just like other java dependencies. The `utilities` will scan the classpath and automatically `System.load()` the native libraries out of the jar files. This makes it easy to incorporate opencv into your java projects and rely on the same dependency mechanisms for the native code that you normally rely on for java code. 
+If you are writing OpenCV code in java and you use this project to build and package the native binaries, you can use `dempsy-commons` utilities to load them from your code. This project will package the OpenCv JNI binaries into a jar file so it will work just like any other java dependencies. The `dempsy-commons` utilities will scan the classpath and automatically `System.load()` the native libraries out of the jar files. This makes it easy to incorporate OpenCv into your java projects and rely on the same dependency mechanisms for the native code that you normally rely on for java code. 
 
-Alternatively, if you're not interested in packaging up the binaries but only building them, you can also build OpenCV locally, pretty much from scratch, on either Windows (using an MSYS2 or Cygwon shell) or Linux.
+Alternatively, if you're not interested in packaging up the binaries but only building OpenCv, you can do that from scratch, on either Windows (using an MSYS2 or Cygwin shell) or Linux.
 
-This doesn't currently explicitly package the actual binary distribution of OpenCV (though I'm working on it). However, if you build with static linking (which is done automatically on Windows), then the JNI library that's built contains all of the other necessary object code so you don't need to manage a local install of OpenCV binaries. If you don't build that way you will still need to install and use the opencv binaries appropriately (this is the default on Linux).
+By default, the scripts here build the JNI shared library so that it's statically linked to the OpenCv binaries. That way the JNI library contains all of the other necessary object code so you don't need to manage a local install of the OpenCV binaries. 
 
-Optioanlly, on Windows, you can simply `package.sh` the binary distribution downloaded and installed from the OpenCV website. The DLLs installed using OpenCV's Windows installers already has the the other libs statically linked into the JNI library. At least this was my experience using 3.0.0 to the current release, 3.3.1. If you manually build for Windows with `BUILD_SHARED_LIBS=true` or use the option "-no-static" when using `fromscratch.sh` then you will need the OpenCV .DLLs/.so's on your PATH to use the packaged JNI native libraries.
+Optionally, on Windows, you can simply `package.sh` the binary distribution downloaded and installed from the OpenCV website. The JNI library DLLs installed using OpenCV's Windows installers are already statically linked to the rest of OpenCv (at least this was my experience using 3.0.0 to the current release, 3.3.1).
 
 ## Buliding OpenCV `fromscratch.sh`
 
-`fromscratch.sh` should build OpenCV on Linux or Windows comlpetely from scratch. It will check out OpenCV, build and install your chosen version, and then run the packaging to install the artifacts into the local maven repository. The usage message is as follows:
+`fromscratch.sh` should build OpenCV on Linux or Windows (as the name implies) completely from scratch. It will check out OpenCV, build and install your chosen version, and then run the packaging to install the artifacts into the local maven repository. The usage message is as follows:
 
 ```
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
@@ -40,38 +40,38 @@ Optioanlly, on Windows, you can simply `package.sh` the binary distribution down
 
 ### Building using `fromscratch.sh` on Windows
 
-On Windows, the expectation is that `fromscratch.sh` will be run from MSYS2 or Cygwin. When running `fromscratch.sh` on Windows, you'll need to a few prerequisites.
+On Windows, the expectation is that `fromscratch.sh` will be run from MSYS2 or Cygwin. When running `fromscratch.sh` on Windows, you'll need to prepare a few prerequisites.
 
 1. MSYS2 or Cygwin installed, updated and set up.
 1. Java is installed and on your MSYS2/Cygwin PATH or JAVA_HOME is set correctly.
 1. Apache ANT is installed (unzip to a directory on Windows)
-1. The **Windows** version of CMake is installed.
+1. The **Windows** version of CMake is installed. *
 1. You'll also need either MinGW toolchain OR Visual Studio installed (there are currently issues using the artifacts generated from the MSYS2 toolchain) depending on which CMake generator you choose.
-1. You'll need the **Windows** version of Python2 installed.
+1. You'll need the **Windows** version of Python2 installed. **
 
-__Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 or Cygwin version of cmake.__
+__* Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 or Cygwin version of cmake.__
 
-__Note: This requires the Windows version of Python 2. You can try using the MSYS2 version but it's untested at this point.__
+__** Note: This requires the Windows version of Python 2. You can try using the MSYS2 version but it's untested at this point.__
 
 When you run `fromscratch.sh` you'll need to make sure `ant.bat`, `python.exe`, and `java.exe` are on your MSYS2/Cygwin PATH (Note: it will work without `java.exe` on your PATH if `JAVA_HOME` is set). The following are some examples that worked for me:
 
 #### Example 1
+From MSYS2 bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `java` is on the PATH):
+``` bash
+PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 -G "Visual Studio 14 2015 Win64" -j8
+```
+
+#### Example 2
 From MSYS2 bash, specifying JAVA_HOME, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using the MinGW toolchain to build and parallel build on 8 cores (the Windows version of Python2 is already on the PATH):
 ``` bash
 JAVA_HOME="$(cygpath "$JAVA_HOME")" CMAKE=/c/Program\ Files/CMake/bin/cmake PATH="$PATH":/c/utils/apache-ant-1.10.1/bin ./fromscratch.sh -v 3.3.1 -G "MSYS Makefiles" -j8
 ```
 
-This last example assumes the MSYS2 toolchain is already installed. You can do that using the following:
+This example assumes the MSYS2 toolchain is already installed. You can do that using the following:
 ``` bash
 pacman -Sy --noconfirm --needed base-devel
 pacman -Sy --noconfirm --needed msys2-devel
 pacman -Sy --noconfirm --needed mingw-w64-x86_64-toolchain
-```
-
-#### Example 2
-From MSYS2 bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `java` is on the PATH):
-``` bash
-PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 -G "Visual Studio 14 2015 Win64" -j8
 ```
 
 ### Building using `fromscratch.sh` on Linux
@@ -79,8 +79,8 @@ PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cm
 When running `fromscratch.sh` on Linux, you'll need to a few prerequisites.
 
 1. Make sure Java is installed and on the path.
-1. Install apache ANT
-1. Install build tools (on Debian based system `sudo apt-get install build-essential`)
+1. Install Apache ANT (on Debian based systems `sudo apt-get install ant`) 
+1. Install build tools (on Debian based systems `sudo apt-get install build-essential`)
 
 Using `fromscratch.sh` on Linux is similar to Windows described above.
 
