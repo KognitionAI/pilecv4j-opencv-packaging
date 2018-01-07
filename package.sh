@@ -1,10 +1,17 @@
 #!/bin/bash
 
+usage() {
+    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-G \"cmake generator\"]"
+    echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
+    echo "    OPENCV_INSTALL must be defined"
+    exit 1
+}
+
 NATIVE_PROP_FILE=net.dempsy.lib.properties
 
 if [ "$OPENCV_INSTALL" = "" ]; then
     echo "OPENCV_INSTALL must be set to point to the path where OpenCV is installed."
-    exit 1
+    usage
 fi
 
 if [ ! -d "$OPENCV_INSTALL" ]; then
@@ -78,7 +85,22 @@ else
         echo "$1"
     }
 fi
+
+
 ###############################################################
+CMAKE_GENERATOR=
+while [ $# -gt 0 ]; do
+    case "$1" in
+        "-G")
+            CMAKE_GENERATOR="$2"
+            shift
+            shift
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
 
 OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_MAKE" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
@@ -111,6 +133,32 @@ rm -rf "$OPENCV_LIBS_PATH"/* 2>/dev/null
 find "$OPENCV_INSTALL" -name "*.dll" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
 find "$OPENCV_INSTALL" -name "*.so" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
 
+# remove any libs incompatible with this arch
+BIT64="$(arch | grep 64)"
+for lib in "$OPENCV_LIBS_PATH"/*; do
+    # IS_ARCH will be non-empty if the lib belong on this arch
+    if [ "$BIT64" != "" ]; then # 64 bit
+        IS_ARCH="$(file "$lib" | grep -i "64")"
+    else # 32 bit
+        TMP="$(file "$lib" | grep -i "64")"
+        if [ "$TMP" = "" ]; then
+            IS_ARCH=true
+        fi
+    fi
+    if [ "$IS_ARCH" = "" ]; then
+        echo "removing \"$lib\" because it's from the wrong architecture."
+        rm "$lib"
+    fi
+done
+
+# find any import libs that go along with the dll.
+LIBNAMES="$(find "$OPENCV_LIBS_PATH" -name "*.dll")"
+for lib in $LIBNAMES; do
+    IMPLIB="$(echo "$(basename "$lib")" | sed -e "s/\.dll$/\.lib/1")"
+    echo "Searching for \"$IMPLIB\""
+    find "$OPENCV_INSTALL"/.. -name "$IMPLIB" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
+done
+
 echo "Files to package:"
 ls -l "$OPENCV_LIBS_PATH"
 
@@ -137,7 +185,12 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN clean install
+if [ "$CMAKE_GENERATOR" != "" ]; then
+    $MVN -Dgenerator="$CMAKE_GENERATOR" clean install
+else
+    $MVN clean install
+fi
+
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv.Please manually reset the project using \"git reset --hard HEAD\""
     exit 1

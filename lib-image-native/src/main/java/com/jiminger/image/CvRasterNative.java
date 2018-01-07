@@ -7,5 +7,5 @@ public abstract class CvRasterNative {
 
     static native long _getDataAddress(long matNativeRef);
 
-    static native void showImage(long matNativeRef);
+//    static native void showImage(long matNativeRef);
 }

@@ -16,7 +16,6 @@ if(UNIX)
   add_definitions(-DUNIX)
 endif()
 
-
 add_custom_command(
     OUTPUT com_jiminger_image_CvRasterNative.h
     COMMAND ${Java_JAVAH_EXECUTABLE} -verbose
@@ -26,8 +25,12 @@ add_custom_command(
     )
 
 include_directories(${JNI_INCLUDE_DIRS} ${_stubDir} $ENV{OPENCV_INSTALL}/include)
+
 add_library(lib-image-native.jiminger.com
 	MODULE com_jiminger_image_CvRasterNative.h
                sources/CvRasterNative.cpp)
 
-target_link_libraries(lib-image-native.jiminger.com ${JNI_LIBRARIES})
+message(STATUS "what? $ENV{LIB_DIR}")
+find_library(OPENCV_JAVA_LIB opencv_java$ENV{OPENCV_SHORT_VERSION} HINTS $ENV{LIB_DIR} )
+
+target_link_libraries(lib-image-native.jiminger.com ${JNI_LIBRARIES} ${OPENCV_JAVA_LIB})

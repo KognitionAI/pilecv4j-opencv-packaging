@@ -1,5 +1,11 @@
 #!/bin/bash
 
+MIN_MAJOR_VER=3
+MIN_MINOR_VER=4
+
+################################################################################
+# Preamble
+################################################################################
 set -e
 MAIN_DIR="$(dirname "$0")"
 cd "$MAIN_DIR"
@@ -7,6 +13,7 @@ PROJDIR="$(pwd -P)"
 
 OS=`uname`
 
+# Platform specifics
 WINDOWS=
 if [ "$(echo "$OS" | grep MINGW)" != "" ]; then
     PLAT=MINGW
@@ -52,6 +59,13 @@ else
 fi
 set +e
 
+# Determine arch automatically for Windows so you don't need to specify it in the generator
+CMAKE_ARCH=
+if [ "$WINDOWS" = "true" -a "$(arch | grep 64)" != "" ]; then
+    CMAKE_ARCH="-Ax64"
+fi
+################################################################################
+
 usage() {
     echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $0 -v opencv-version [options]"
     echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.3.1\"" 
@@ -77,19 +91,14 @@ usage() {
     exit 1
 }
 
-CMAKE_ARCH=
-if [ "$WINDOWS" = "true" -a "$(arch | grep 64)" != "" ]; then
-    CMAKE_ARCH="-Ax64"
-fi
-
 WORKING_DIR=/tmp
 OPENCV_VERSION=
 PARALLEL_BUILD=
 CMAKE_GENERATOR=
 SKIPC=
 SKIPP=
-BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
-BUILD_PYTHON="-DBUILD_opencv_python2=false -DBUILD_opencv_python3=false -DBUILD_opencv_python_bindings_generator=false"
+BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF -DBUILD_FAT_JAVA_LIB=ON"
+BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DBUILD_opencv_python_bindings_generator=OFF"
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
@@ -120,7 +129,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "-static")
-            BUILD_SHARED="-DBUILD_SHARED_LIBS=false"
+            BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF"
             shift
             ;;
         "-no-static")
@@ -136,6 +145,24 @@ done
 if [ "$OPENCV_VERSION" = "" ]; then
     echo "ERROR: you didn't specify and opencv version"
     usage
+fi
+
+MAJOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/\..*$//1")"
+MINOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/^$MAJOR_VER\.//1" | sed -e "s/\..*$//1")"
+
+TOO_OLD=
+if [ $MIN_MAJOR_VER -gt $MAJOR_VER ]; then
+    TOO_OLD="true"
+elif [ $MIN_MAJOR_VER -eq $MAJOR_VER -a $MIN_MINOR_VER -gt $MINOR_VER ]; then
+    TOO_OLD="true"
+fi
+
+if [ "$TOO_OLD" = "true" ]; then
+    echo "WARNING: The version you're building ($OPENCV_VERSION) is lower than the minimum version allowed ($MIN_MAJOR_VER.$MIN_MINOR_VER.x) to build the jiminget.com extentions."
+    if [ "$SKIPP" != "true" ]; then
+        echo "         if you want to continue bulding this version you must supply the \"-sp\" option in order to skip building the extenstion."
+        exit 1
+    fi
 fi
 
 if [ ! -d "$WORKING_DIR" ]; then
@@ -241,6 +268,15 @@ if [ "$SKIPC" != "true" ]; then
         echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv"
         exit 1
     fi
+    if [ "$TOO_OLD" = "" ]; then
+        echo "Applying patch for building a FAT jar."
+        # if it's not too old then apply the patch to build a fat jar
+        set -e
+        git remote add patchy git@github.com:jimfcarroll/opencv.git
+        git remote update patchy
+        git cherry-pick 5fea4753b26ffc30b271daa3e390cdf52da3a1bc
+        set +e
+    fi
     cd ..
 
     "$GIT" clone https://github.com/opencv/opencv_contrib.git
@@ -332,11 +368,11 @@ fi
 echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/opencv/cmake.out"
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 else
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=false -DBUILD_PERF_TESTS=false -DBUILD_TESTS=false $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 fi
 
 if [ $? -ne 0 ]; then
@@ -386,7 +422,11 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SKIPP" != "true" ]; then
-    OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh
+    if [ "$CMAKE_GENERATOR" != "" ]; then
+        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh -G "$CMAKE_GENERATOR"
+    else
+        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh
+    fi
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
         exit 1

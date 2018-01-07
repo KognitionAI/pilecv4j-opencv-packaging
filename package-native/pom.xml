@@ -74,6 +74,7 @@
               <environmentVariables>
                 <CMAKE_CLASSIFIER>${platform}</CMAKE_CLASSIFIER>
                 <PROJECT_VERSION>${project.version}</PROJECT_VERSION>
+                <LIB_DIR>${project.basedir}/src/temp/libs</LIB_DIR>
               </environmentVariables>
               <downloadBinaries>${download.cmake}</downloadBinaries>
             </configuration>
