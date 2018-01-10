@@ -156,7 +156,7 @@ LIBNAMES="$(find "$OPENCV_LIBS_PATH" -name "*.dll")"
 for lib in $LIBNAMES; do
     IMPLIB="$(echo "$(basename "$lib")" | sed -e "s/\.dll$/\.lib/1")"
     echo "Searching for \"$IMPLIB\""
-    find "$OPENCV_INSTALL"/.. -name "$IMPLIB" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
+    find "$OPENCV_INSTALL" -name "$IMPLIB" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
 done
 
 echo "Files to package:"

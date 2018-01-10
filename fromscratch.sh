@@ -2,10 +2,11 @@
 
 MIN_MAJOR_VER=3
 MIN_MINOR_VER=4
+TO_PATCH_VER=3.4.0
 
-################################################################################
+# =============================================================================
 # Preamble
-################################################################################
+# =============================================================================
 set -e
 MAIN_DIR="$(dirname "$0")"
 cd "$MAIN_DIR"
@@ -64,7 +65,7 @@ CMAKE_ARCH=
 if [ "$WINDOWS" = "true" -a "$(arch | grep 64)" != "" ]; then
     CMAKE_ARCH="-Ax64"
 fi
-################################################################################
+# =============================================================================
 
 usage() {
     echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $0 -v opencv-version [options]"
@@ -81,6 +82,8 @@ usage() {
     echo "       package them in a jar file for use with com.jiminger.utilities"
     echo "    -static(default)|-no-static: force the build to statically link (dynamically link for \"-no-static\") "
     echo "        the JNI libraries. By default, the JNI library is statically linked on all platform builds."
+    echo "    -bp: Build python wrappers. By default, the script blocks building the Python wrappers. If you want "
+    echo "        to build them anyway you can specify \"-bp\"."
     echo "    --help|-help: print this message"
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
@@ -88,7 +91,12 @@ usage() {
     echo "    if CMAKE isn't set then the script assumes \"cmake\" is on the command line PATH"
     echo "    if JAVA_HOME isn't set then the script will locate the \"java\" executable on the PATH"
     echo "      and will attempt infer the JAVA_HOME environment variable from there."
-    exit 1
+
+    if [ $# -gt 0 ]; then
+        exit $1
+    else
+        exit 1
+    fi
 }
 
 WORKING_DIR=/tmp
@@ -133,10 +141,18 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "-no-static")
-            BUILD_SHARED="-DBUILD_SHARED_LIBS=true"
+            # BUILD_SHARED should already be set
             shift
             ;;
+        "-bp")
+            BUILD_PYTHON=
+            shift
+            ;;
+        "-help"|"--help"|"-h"|"-?")
+            usage 0
+            ;;
         *)
+            echo "ERROR: Unknown option \"$1\""
             usage
             ;;
     esac
@@ -149,7 +165,9 @@ fi
 
 MAJOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/\..*$//1")"
 MINOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/^$MAJOR_VER\.//1" | sed -e "s/\..*$//1")"
+PATCH_VER="$(echo "$OPENCV_VERSION" | sed -e "s/^$MAJOR_VER\.$MINOR_VER\.//1")"
 
+# determine if this version is too old to build our native JNI code against.
 TOO_OLD=
 if [ $MIN_MAJOR_VER -gt $MAJOR_VER ]; then
     TOO_OLD="true"
@@ -163,6 +181,11 @@ if [ "$TOO_OLD" = "true" ]; then
         echo "         if you want to continue bulding this version you must supply the \"-sp\" option in order to skip building the extenstion."
         exit 1
     fi
+fi
+
+PATCHME=
+if [ "$TO_PATCH_VER" = "$OPENCV_VERSION" ]; then
+    PATCHME=true
 fi
 
 if [ ! -d "$WORKING_DIR" ]; then
@@ -268,13 +291,11 @@ if [ "$SKIPC" != "true" ]; then
         echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv"
         exit 1
     fi
-    if [ "$TOO_OLD" = "" ]; then
+    if [ "$PATCHME" = "true" ]; then
         echo "Applying patch for building a FAT jar."
         # if it's not too old then apply the patch to build a fat jar
         set -e
-        git remote add patchy git@github.com:jimfcarroll/opencv.git
-        git remote update patchy
-        git cherry-pick 5fea4753b26ffc30b271daa3e390cdf52da3a1bc
+        git cherry-pick f3dde79ed6f5e17f16f4e2ad9669841e0dd6887c
         set +e
     fi
     cd ..
