@@ -137,7 +137,6 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "-static")
-            BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF"
             shift
             ;;
         "-no-static")

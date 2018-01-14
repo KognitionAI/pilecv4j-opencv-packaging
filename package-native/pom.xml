@@ -30,12 +30,6 @@
 
   <build>
     <sourceDirectory>src/main/cpp</sourceDirectory>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
     <plugins>
       <!-- Copies the dependencies so that javah can find them. -->
       <!--   see the CMakeLists.txt file -->
@@ -125,26 +119,12 @@
             <phase>process-resources</phase>
             <configuration>
               <tasks>
-                <checksum todir="${project.build.directory}" format="CHECKSUM">
-                  <fileset dir="${opencv-libs-path}">
-                    <include name="*"/>
-                  </fileset>
-                </checksum>
-                <checksum todir="${project.build.directory}/cmake" format="CHECKSUM">
-                  <fileset dir="${project.build.directory}/cmake">
-                    <include name="**/*.dll"/>
-                    <include name="**/*.pdb"/>
-                    <include name="**/*.so"/>
-                    <include name="**/*.dylib"/>
-                  </fileset>
-                </checksum>
                 <copy todir="${project.build.directory}/dll-staging">
                   <fileset dir="${project.build.directory}/cmake">
                     <include name="**/*.dll"/>
                     <include name="**/*.pdb"/>
                     <include name="**/*.so"/>
                     <include name="**/*.dylib"/>
-                    <include name="**/*.MD5"/>
                   </fileset>
                   <flattenmapper/>
                 </copy>

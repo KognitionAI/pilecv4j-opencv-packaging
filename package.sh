@@ -7,8 +7,6 @@ usage() {
     exit 1
 }
 
-NATIVE_PROP_FILE=net.dempsy.lib.properties
-
 if [ "$OPENCV_INSTALL" = "" ]; then
     echo "OPENCV_INSTALL must be set to point to the path where OpenCV is installed."
     usage
@@ -161,16 +159,6 @@ done
 
 echo "Files to package:"
 ls -l "$OPENCV_LIBS_PATH"
-
-echo "Generating the properties file"
-LIBS=$(ls "$OPENCV_LIBS_PATH")
-
-for lib in $LIBS; do
-    echo "library.$lib=$lib" >> ./package-native/src/main/resources/$NATIVE_PROP_FILE
-done
-
-echo "$NATIVE_PROP_FILE is:"
-cat ./package-native/src/main/resources/$NATIVE_PROP_FILE
 
 echo "Setting version in the project."
 

@@ -22,19 +22,11 @@
         <include>*.pdb</include>
         <include>*.so</include>
         <include>*.dylib</include>
-        <include>*.MD5</include>
       </includes> 
     </fileSet>
     <fileSet> <!-- Picks up the properties file -->
       <directory>${project.build.outputDirectory}</directory>
       <outputDirectory>/</outputDirectory>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-        <include>*.MD5</include>
-      </includes>
     </fileSet>
     <fileSet>
       <directory>${opencv-libs-path}</directory>
