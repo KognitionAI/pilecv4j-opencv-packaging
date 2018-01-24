@@ -44,3 +44,17 @@ JNIEXPORT jlong JNICALL Java_com_jiminger_image_CvRasterNative__1getDataAddress(
   return ret;
 }
 
+JNIEXPORT jlong JNICALL Java_com_jiminger_image_CvRasterNative__1copy(JNIEnv * env, jclass, jlong native) {
+  cv::Mat* mat = (cv::Mat*) native;
+
+  if (!mat->isContinuous()) {
+    throwIllegalStateException(env, "Cannot copy a Mat is that Mat doesn't have a continuous buffer.");
+    return -1;
+  }
+
+  cv::Mat* newMat = new cv::Mat((*mat));
+
+  jlong ret = (jlong) newMat;
+  return ret;
+}
+
