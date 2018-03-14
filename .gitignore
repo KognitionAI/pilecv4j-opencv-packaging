@@ -1,6 +1,7 @@
 junk.txt
 
 #Eclipse
+.cproject
 .classpath
 .project
 .settings
@@ -12,5 +13,8 @@ junk.txt
 
 *.versionsBackup
 package-native/src/temp
+package-native/src/temp
 
 **/bin/
+**/build/
+
