@@ -58,3 +58,14 @@ JNIEXPORT jlong JNICALL Java_com_jiminger_image_CvRasterNative__1copy(JNIEnv * e
   return ret;
 }
 
+JNIEXPORT jlong JNICALL Java_com_jiminger_image_CvRasterNative__1makeMatFromRawDataReference(JNIEnv * env, jclass, jint rows, jint cols, jint type, jlong dataLong) {
+  void* data = (void*) dataLong;
+  cv::Mat* newMat = new cv::Mat(rows, cols, type, data);
+
+  jlong ret = (jlong) newMat;
+  return ret;
+}
+
+
+
+

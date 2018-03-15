@@ -1,9 +1,11 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-G \"cmake generator\"]"
+    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-G \"cmake generator\"] [-r]"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
     echo "    OPENCV_INSTALL must be defined"
+    echo ""
+    echo "  -r  : Reset the repository after a successful completion. Otherwise just put back the version to 0"
     exit 1
 }
 
@@ -87,11 +89,16 @@ fi
 
 ###############################################################
 CMAKE_GENERATOR=
+RESET=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-G")
             CMAKE_GENERATOR="$2"
             shift
+            shift
+            ;;
+        "-r")
+            RESET=true
             shift
             ;;
         *)
@@ -184,5 +191,10 @@ if [ "$?" -ne 0 ]; then
     exit 1
 fi
 
-$GIT reset --hard HEAD
-$GIT clean -dxf
+if [ "$RESET" = "true" ]; then
+    $GIT reset --hard HEAD
+    $GIT clean -dxf
+else
+    $MVN versions:set -DnewVersion=0
+fi
+
