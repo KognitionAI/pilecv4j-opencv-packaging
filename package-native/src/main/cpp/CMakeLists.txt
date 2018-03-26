@@ -3,34 +3,17 @@ project (utilities.jiminger.com)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-find_package(Java REQUIRED)
-find_package(JNI REQUIRED)
-
-include(UseJava)
-set(CMAKE_JAVA_COMPILE_FLAGS "-source" "1.8" "-target" "1.8")
-
-set (_stubDir "${CMAKE_CURRENT_BINARY_DIR}")
 set (CMAKE_CXX_STANDARD 11)
 
 if(UNIX)
   add_definitions(-DUNIX)
 endif()
 
-add_custom_command(
-    OUTPUT com_jiminger_image_CvRasterNative.h
-    COMMAND ${Java_JAVAH_EXECUTABLE} -verbose
-        -classpath ../lib/lib-image-native-$ENV{PROJECT_VERSION}.jar
-        -d ${_stubDir}
-        -jni com.jiminger.image.CvRasterNative
-    )
-
-include_directories(${JNI_INCLUDE_DIRS} ${_stubDir} $ENV{OPENCV_INSTALL}/include)
+include_directories($ENV{OPENCV_INSTALL}/include)
 
 add_library(lib-image-native.jiminger.com
-	MODULE com_jiminger_image_CvRasterNative.h
-               sources/CvRasterNative.cpp)
+	MODULE sources/CvRasterNative.cpp)
 
-message(STATUS "what? $ENV{LIB_DIR}")
 find_library(OPENCV_JAVA_LIB opencv_java$ENV{OPENCV_SHORT_VERSION} HINTS $ENV{LIB_DIR} )
 
-target_link_libraries(lib-image-native.jiminger.com ${JNI_LIBRARIES} ${OPENCV_JAVA_LIB})
+target_link_libraries(lib-image-native.jiminger.com ${OPENCV_JAVA_LIB})

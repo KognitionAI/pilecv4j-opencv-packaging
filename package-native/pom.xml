@@ -17,11 +17,6 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.jiminger</groupId>
-      <artifactId>lib-image-native</artifactId>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>opencv</groupId>
       <artifactId>opencv</artifactId>
       <optional>true</optional>

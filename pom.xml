@@ -25,11 +25,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>com.jiminger</groupId>
-        <artifactId>lib-image-native</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
         <groupId>opencv</groupId>
         <artifactId>opencv</artifactId>
         <version>${opencv-version}</version>
@@ -39,7 +34,6 @@
 
   <modules>
     <module>install-jar</module>
-    <module>lib-image-native</module>
     <module>package-native</module>
   </modules>
   
