@@ -5,7 +5,8 @@ usage() {
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
     echo "    OPENCV_INSTALL must be defined"
     echo ""
-    echo "  -r  : Reset the repository after a successful completion. Otherwise just put back the version to 0"
+    echo "  -r        : Reset the repository after a successful completion. Otherwise just put back the version to 0"
+    echo "  --deploy  : do a \"mvn deploy\" as part of building."
     exit 1
 }
 
@@ -90,6 +91,7 @@ fi
 ###############################################################
 CMAKE_GENERATOR=
 RESET=
+MVN_TARGET=install
 while [ $# -gt 0 ]; do
     case "$1" in
         "-G")
@@ -99,6 +101,10 @@ while [ $# -gt 0 ]; do
             ;;
         "-r")
             RESET=true
+            shift
+            ;;
+        "--deploy")
+            MVN_TARGET=deploy
             shift
             ;;
         *)
@@ -181,9 +187,9 @@ export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    $MVN -Dgenerator="$CMAKE_GENERATOR" clean install
+    $MVN -Dgenerator="$CMAKE_GENERATOR" clean $MVN_TARGET
 else
-    $MVN clean install
+    $MVN clean $MVN_TARGET
 fi
 
 if [ "$?" -ne 0 ]; then
