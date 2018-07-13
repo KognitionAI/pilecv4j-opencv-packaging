@@ -69,23 +69,27 @@ fi
 
 usage() {
     echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $0 -v opencv-version [options]"
-    echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.3.1\"" 
+    echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.4.2\"" 
     echo " Options:"
     echo "    -w /path/to/workingDirectory: this is /tmp by default."
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
-    echo "    -sc: This will \"skip the checkout\" of the opencv code. If you're playing with different options"
+    echo ""
+    echo "    --help|-help: print this message"
+    echo "    --skip-checkout: This will \"skip the checkout\" of the opencv code. If you're playing with different options"
     echo "       then once the code is checked out, using -sc will allow subsequent runs to progress faster."
     echo "       This doesn't work unless the working directory remains the same between runs."
-    echo "    -sp: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't"
+    echo "    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't"
     echo "       package them in a jar file for use with com.jiminger.utilities"
-    echo "    -static(default)|-no-static: force the build to statically link (dynamically link for \"-no-static\") "
+    echo ""
+    echo " Build Options"
+    echo "    --static(default)|--no-static: force the build to statically link (dynamically link for \"-no-static\") "
     echo "        the JNI libraries. By default, the JNI library is statically linked on all platform builds."
-    echo "    -bp: Build python wrappers. By default, the script blocks building the Python wrappers. If you want "
-    echo "        to build them anyway you can specify \"-bp\"."
-    echo "    -deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
-    echo "    --help|-help: print this message"
+    echo "    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If you want "
+    echo "        to build them anyway you can specify \"--build-python\"."
+    echo "    --build-samples: Build the OpenCV samples also."
+    echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -109,6 +113,7 @@ SKIPP=
 BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF -DBUILD_FAT_JAVA_LIB=ON"
 BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DBUILD_opencv_python_bindings_generator=OFF"
 DEPLOY_ME=
+BUILD_SAMPLES=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
@@ -130,27 +135,31 @@ while [ $# -gt 0 ]; do
             shift
             shift
             ;;
-        "-sc")
+        "-sc"|"--skip-checkout")
             SKIPC=true
             shift
             ;;
-        "-sp")
+        "-sp"|"--skip-packaging")
             SKIPP=true
             shift
             ;;
-        "-static")
+        "-static"|"--static")
             shift
             ;;
-        "-no-static")
+        "-no-static"|"--no-static")
             # BUILD_SHARED should already be set
             shift
             ;;
-        "-bp")
+        "-bp"|"--build-python")
             BUILD_PYTHON=
             shift
             ;;
-        "-deploy")
+        "--deploy")
             DEPLOY_ME="--deploy"
+            shift
+            ;;
+        "--build-samples")
+            BUILD_SAMPLES="-DBUILD_EXAMPLES=ON"
             shift
             ;;
         "-help"|"--help"|"-h"|"-?")
@@ -394,11 +403,11 @@ fi
 echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/opencv/cmake.out"
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 else
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath  "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
 fi
 
 if [ $? -ne 0 ]; then
@@ -439,6 +448,22 @@ echo "\"$MAKE\" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE" | tee -a "$WORKING_DIR
 if [ $? -ne 0 ]; then
     echo "The make step seems to have failed. I can't continue."
     exit 1
+fi
+
+# if we're on linux, and execstack is installed, then we want to fixup the opencv_${shortversion} library
+if [ "Linux" = "$PLAT" ]; then
+    type execstack
+    if [ $? -eq 0 ]; then
+        JAVA_SHARED_LIB=`find "$WORKING_DIR/opencv/installed" -name "libopencv_java*.so" | head -1`
+        if [ -f "$JAVA_SHARED_LIB" ]; then
+            echo "Applying buffer overrun protection to \"$JAVA_SHARED_LIB\""
+            execstack "$JAVA_SHARED_LIB"
+        else
+            echo "WARN: I should have been able to apply buffer overrun protection to the shared lib \"$JAVA_SHARED_LIB\" but I couldn't find it."
+        fi
+    else
+        echo "NOT applying overrun protection. You should install 'execstack' using 'sudo apt-get install execstack'. Continuing..."
+    fi
 fi
 
 cd $PROJDIR
