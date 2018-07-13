@@ -84,6 +84,7 @@ usage() {
     echo "        the JNI libraries. By default, the JNI library is statically linked on all platform builds."
     echo "    -bp: Build python wrappers. By default, the script blocks building the Python wrappers. If you want "
     echo "        to build them anyway you can specify \"-bp\"."
+    echo "    -deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
     echo "    --help|-help: print this message"
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
@@ -107,6 +108,7 @@ SKIPC=
 SKIPP=
 BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF -DBUILD_FAT_JAVA_LIB=ON"
 BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DBUILD_opencv_python_bindings_generator=OFF"
+DEPLOY_ME=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
@@ -145,6 +147,10 @@ while [ $# -gt 0 ]; do
             ;;
         "-bp")
             BUILD_PYTHON=
+            shift
+            ;;
+        "-deploy")
+            DEPLOY_ME="--deploy"
             shift
             ;;
         "-help"|"--help"|"-h"|"-?")
@@ -443,9 +449,9 @@ fi
 
 if [ "$SKIPP" != "true" ]; then
     if [ "$CMAKE_GENERATOR" != "" ]; then
-        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh -G "$CMAKE_GENERATOR"
+        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME -G "$CMAKE_GENERATOR"
     else
-        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh
+        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME
     fi
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
