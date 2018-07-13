@@ -16,20 +16,27 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 
 ```
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
-    -v:  opencv-version. This needs to be specified. e.g. "-v 3.3.1"
+    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.2"
  Options:
     -w /path/to/workingDirectory: this is /tmp by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
-    -sc: This will "skip the checkout" of the opencv code. If you're playing with different options
+
+    --help|-help: print this message
+    --skip-checkout: This will "skip the checkout" of the opencv code. If you're playing with different options
        then once the code is checked out, using -sc will allow subsequent runs to progress faster.
        This doesn't work unless the working directory remains the same between runs.
-    -sp: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't
+    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't
        package them in a jar file for use with com.jiminger.utilities
-    -static(default)|-no-static: force the build to statically link (dynamically link for "-no-static") 
+
+ Build Options
+    --static(default)|--no-static: force the build to statically link (dynamically link for "-no-static") 
         the JNI libraries. By default, the JNI library is statically linked on all platform builds.
-    --help|-help: print this message
+    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If you want 
+        to build them anyway you can specify "--build-python".
+    --build-samples: Build the OpenCV samples also.
+    --deploy: perform a "mvn deploy" rather than just a "mvn install"
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
     if MVN isn't set then the script assumes "mvn" is on the command line PATH
