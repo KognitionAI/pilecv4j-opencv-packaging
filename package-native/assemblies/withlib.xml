@@ -14,16 +14,6 @@
     </dependencySet>
   </dependencySets>
   <fileSets>
-    <fileSet>
-      <directory>${project.build.directory}/dll-staging</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes> 
-        <include>*.dll</include>
-        <include>*.pdb</include>
-        <include>*.so</include>
-        <include>*.dylib</include>
-      </includes> 
-    </fileSet>
     <fileSet> <!-- Picks up the properties file -->
       <directory>${project.build.outputDirectory}</directory>
       <outputDirectory>/</outputDirectory>
@@ -34,6 +24,9 @@
       <includes>
         <include>*</include>
       </includes>
+      <excludes>
+        <exclude>cv2.*</exclude>
+      </excludes>
     </fileSet>
   </fileSets>
 </assembly>

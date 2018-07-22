@@ -170,6 +170,23 @@ for lib in $LIBNAMES; do
     find "$OPENCV_INSTALL" -name "$IMPLIB" -type f -exec cp {} "$OPENCV_LIBS_PATH" \;
 done
 
+# if we're on linux, and execstack is installed, then we want to fixup the opencv_${shortversion} library
+if [ "Linux" = "$PLAT" ]; then
+    type execstack
+    if [ $? -eq 0 ]; then
+        JAVA_SHARED_LIB=`ls "$OPENCV_LIBS_PATH"/libopencv_java*.so | head -1`
+        if [ -f "$JAVA_SHARED_LIB" ]; then
+            echo "Applying buffer overrun protection to \"$JAVA_SHARED_LIB\""
+            execstack -c "$JAVA_SHARED_LIB"
+        else
+            echo "WARN: I should have been able to apply buffer overrun protection to the shared lib \"$JAVA_SHARED_LIB\" but I couldn't find it."
+        fi
+    else
+        echo "NOT applying overrun protection. You should install 'execstack' using 'sudo apt-get install execstack'. Continuing..."
+    fi
+fi
+
+
 echo "Files to package:"
 ls -l "$OPENCV_LIBS_PATH"
 
