@@ -1,11 +1,13 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-G \"cmake generator\"] [-r]"
+    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-r]"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
     echo "    OPENCV_INSTALL must be defined"
     echo ""
-    echo "  -r        : Reset the repository after a successful completion. Otherwise just put back the version to 0"
+    echo "  -r        : Reset the checked out git code after a successful completion. Otherwise just put back the version to 0"
+    echo "              IMPORTANT NOTE!!!: If you made an chagnes to the checked out code, selecting -r will have it all "
+    echo "              reversed upon successful completion of this script."
     echo "  --deploy  : do a \"mvn deploy\" as part of building."
     exit 1
 }
@@ -37,7 +39,7 @@ if [ "$GIT" = "" ]; then
 fi
 
 ###############################################################
-# Setup some platforM specifics
+# Setup some platform specifics
 ###############################################################
 OS=`uname`
 
@@ -89,16 +91,10 @@ fi
 
 
 ###############################################################
-CMAKE_GENERATOR=
 RESET=
 MVN_TARGET=install
 while [ $# -gt 0 ]; do
     case "$1" in
-        "-G")
-            CMAKE_GENERATOR="$2"
-            shift
-            shift
-            ;;
         "-r")
             RESET=true
             shift
@@ -203,14 +199,10 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-if [ "$CMAKE_GENERATOR" != "" ]; then
-    $MVN -Dgenerator="$CMAKE_GENERATOR" clean $MVN_TARGET
-else
-    $MVN clean $MVN_TARGET
-fi
+$MVN clean $MVN_TARGET
 
 if [ "$?" -ne 0 ]; then
-    echo "Failed to install packaged opencv.Please manually reset the project using \"git reset --hard HEAD\""
+    echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
 fi
 

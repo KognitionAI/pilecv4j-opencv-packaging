@@ -1,4 +1,4 @@
-# *WARNING: Any changes made to the project and left uncommitted will be undone upon a successful run of `package.sh` or `fromscratch.sh`*
+# OpenCV build and package for java
 
 This project will allow you to build from scratch, package into a jar file, and install into the local maven repository, an `OpenCV` distribution's Java extensions including `opencv_contrib`. If you don't care about packaging up the OpenCv distribution for use with Java, you can simply use this project to build the OpenCv libraries. 
 
