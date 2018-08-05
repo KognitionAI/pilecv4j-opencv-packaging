@@ -24,18 +24,22 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
 
     --help|-help: print this message
-    --skip-checkout: This will "skip the checkout" of the opencv code. If you're playing with different options
-       then once the code is checked out, using -sc will allow subsequent runs to progress faster.
+    --skip-checkout: This will "skip the checkout" of the opencv code. If you're playing with different
+       options then once the code is checked out, using -sc will allow subsequent runs to progress faster.
        This doesn't work unless the working directory remains the same between runs.
-    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but don't
-       package them in a jar file for use with com.jiminger.utilities
+    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but
+       don't package them in a jar file for use with com.jiminger.utilities
 
  Build Options
-    --static(default)|--no-static: force the build to statically link (dynamically link for "-no-static") 
+    --static(default)|--no-static: force the build to statically link (dynamically link for "--no-static")
         the JNI libraries. By default, the JNI library is statically linked on all platform builds.
-    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If you want 
-        to build them anyway you can specify "--build-python".
+    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If
+        you want to build them anyway you can specify "--build-python".
     --build-samples: Build the OpenCV samples also.
+    --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this
+        option is untested on Windows).
+    --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be
+        installed, this option is untested on Windows).
     --deploy: perform a "mvn deploy" rather than just a "mvn install"
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
