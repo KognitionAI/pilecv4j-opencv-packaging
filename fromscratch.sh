@@ -488,11 +488,8 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SKIPP" != "true" ]; then
-    if [ "$CMAKE_GENERATOR" != "" ]; then
-        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME -G "$CMAKE_GENERATOR"
-    else
-        OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME
-    fi
+    OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME
+
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
         exit 1
