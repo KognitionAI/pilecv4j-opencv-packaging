@@ -86,8 +86,10 @@ usage() {
     echo " Build Options"
     echo "    --static(default)|--no-static: force the build to statically link (dynamically link for \"--no-static\")"
     echo "        the JNI libraries. By default, the JNI library is statically linked on all platform builds."
-    echo "    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If"
-    echo "        you want to build them anyway you can specify \"--build-python\"."
+    echo "    --build-python: Build python3 wrappers. By default, the script blocks building the Python wrappers. If"
+    echo "        you want to build them anyway you can specify \"--build-python\" or \"--build-python-3\"."
+    echo "    --build-python-2: Build python2 wrappers. By default, the script blocks building the Python wrappers."
+    echo "        This is mutually exclusive with \"--build-python\"."
     echo "    --build-samples: Build the OpenCV samples also."
     echo "    --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this"
     echo "        option is untested on Windows)."
@@ -157,8 +159,12 @@ while [ $# -gt 0 ]; do
             # BUILD_SHARED should already be set
             shift
             ;;
-        "-bp"|"--build-python")
+        "-bp"|"--build-python"|"-bp3"|"--build-python-3")
             BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=ON -DBUILD_opencv_python_bindings_generator=ON"
+            shift
+            ;;
+        "-bp2"|"--build-python-2")
+            BUILD_PYTHON="-DBUILD_opencv_python2=ON -DBUILD_opencv_python3=OFF -DBUILD_opencv_python_bindings_generator=OFF"
             shift
             ;;
         "--deploy")
@@ -170,11 +176,12 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "--build-cuda-support")
-            # The current OpenCV compilation mode is equal to default settings of system compiler. 
-            # It usually C++98 (gnu++98) for Ubuntu/Fedora/etc. The NVCC flag is required when building 
-            # using C++11 (rather than OpenCV's expected C++98) but should not cause problems when 
-            # building on C++98.
-            BUILD_CUDA="-DWITH_CUDA=ON -DCUDA_NVCC_FLAGS=--expt-relaxed-constexpr"
+            # Explicity enable support for CUDA runtime, CUDA FFT support, CUDA linear algebra, and CUDA video decode.
+            # CUDA_NVCC_FLAG explanation: The current OpenCV compilation mode is equal to default settings of system 
+            # compiler. It usually C++98 (gnu++98) for Ubuntu/Fedora/etc. The NVCC flag is required when building 
+            # using C++11 (rather than OpenCV's expected C++98) but should not cause problems when building on C++98. 
+            # This change is relevant only for CUDA 9.0 or higher but should not effect 8.X builds.
+            BUILD_CUDA="-DWITH_CUDA=ON -DCUDA_NVCC_FLAGS=--expt-relaxed-constexpr -DWITH_CUFFT=ON -DWITH_CUBLAS=ON -DWITH_NVCUVID=ON"
             shift
             ;;
         "--build-qt-support")

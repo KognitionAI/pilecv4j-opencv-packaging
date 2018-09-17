@@ -16,7 +16,7 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 
 ```
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
-    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.2"
+    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.3"
  Options:
     -w /path/to/workingDirectory: this is /tmp by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
@@ -33,11 +33,13 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
  Build Options
     --static(default)|--no-static: force the build to statically link (dynamically link for "--no-static")
         the JNI libraries. By default, the JNI library is statically linked on all platform builds.
-    --build-python: Build python wrappers. By default, the script blocks building the Python wrappers. If
-        you want to build them anyway you can specify "--build-python".
+    --build-python: Build python3 wrappers. By default, the script blocks building the Python wrappers. If
+        you want to build them anyway you can specify "--build-python" or "--build-python-3".
+    --build-python-2: Build python 2 wrappers. By default, the script blocks building the Python wrappers.
+        This is mutually exclusive with "--build-python".
     --build-samples: Build the OpenCV samples also.
     --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this
-        option is untested on Windows).
+        option is untested on Windows). Assumes a version of CUDA 
     --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be
         installed, this option is untested on Windows).
     --deploy: perform a "mvn deploy" rather than just a "mvn install"
