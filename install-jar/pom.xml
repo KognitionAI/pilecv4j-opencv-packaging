@@ -35,6 +35,29 @@
           </execution>
         </executions>
       </plugin>            
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>deploy-opencv-jar</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy-file</goal>
+            </goals>
+            <configuration>
+              <file>${opencv-jar-path}</file>
+              <repositoryId>${utilities.distribution.release.repo.id}</repositoryId>
+              <generatePom>true</generatePom>
+              <packaging>jar</packaging>
+              <version>${opencv-version}</version>
+              <groupId>opencv</groupId>
+              <artifactId>opencv</artifactId>
+              <url>${utilities.distribution.release.repo.url}</url>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>            
     </plugins>
   </build>
 

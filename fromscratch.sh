@@ -75,6 +75,7 @@ usage() {
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
+    echo "    --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     echo ""
     echo "    --help|-help: print this message"
     echo "    --skip-checkout: This will \"skip the checkout\" of the opencv code. If you're playing with different"
@@ -120,6 +121,7 @@ DEPLOY_ME=
 BUILD_SAMPLES=
 BUILD_CUDA=
 BUILD_QT=
+ZIPUP=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -130,6 +132,11 @@ while [ $# -gt 0 ]; do
             ;;
         "-v")
             OPENCV_VERSION=$2
+            shift
+            shift
+            ;;
+        "--zip")
+            ZIPUP=$2
             shift
             shift
             ;;
@@ -496,6 +503,24 @@ if [ "$SKIPP" != "true" ]; then
 
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
+        exit 1
+    fi
+fi
+
+if [ "$ZIPUP" != "" ]; then
+    if [ -f "$ZIPUP" ]; then
+        rm "$ZIPUP"
+    fi
+
+    ZIP_PATH="$(realpath "$ZIPUP")"
+    set -e
+    cd "$WORKING_DIR/opencv/installed"
+    set +e
+    
+    zip -r "$ZIP_PATH" ./
+
+    if [ $? -ne 0 ]; then
+        echo "The zipping of the opencv install seems to have failed."
         exit 1
     fi
 fi

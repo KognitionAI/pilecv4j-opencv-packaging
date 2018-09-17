@@ -15,7 +15,25 @@
     <opencv-version>${project.version}</opencv-version>
     <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
   </properties>
-  
+
+  <scm>
+    <developerConnection>scm:git:git@github.com:jimfcarroll/utilities.git</developerConnection>
+    <tag>master</tag>
+    <url>https://github.com/jimfcarroll/utilities</url>
+  </scm>
+
+  <distributionManagement>
+    <repository>
+      <id>${utilities.distribution.release.repo.id}</id>
+      <name>Utilities release</name>
+      <url>${utilities.distribution.release.repo.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>${utilities.distribution.snapshot.repo.id}</id>
+      <name>Utilities snapshot</name>
+      <url>${utilities.distribution.snapshot.repo.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <dependencyManagement>
     <dependencies>
