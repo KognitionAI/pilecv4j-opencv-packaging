@@ -17,9 +17,9 @@
   </properties>
 
   <scm>
-    <developerConnection>scm:git:git@github.com:jimfcarroll/utilities.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:jimfcarroll/opencv-packaging.git</developerConnection>
     <tag>master</tag>
-    <url>https://github.com/jimfcarroll/utilities</url>
+    <url>https://github.com/jimfcarroll/opencv-packaging</url>
   </scm>
 
   <distributionManagement>
