@@ -158,7 +158,7 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "-bp"|"--build-python")
-            BUILD_PYTHON=
+            BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=ON -DBUILD_opencv_python_bindings_generator=ON"
             shift
             ;;
         "--deploy")
@@ -170,7 +170,11 @@ while [ $# -gt 0 ]; do
             shift
             ;;
         "--build-cuda-support")
-            BUILD_CUDA="-DWITH_CUDA=ON"
+            # The current OpenCV compilation mode is equal to default settings of system compiler. 
+            # It usually C++98 (gnu++98) for Ubuntu/Fedora/etc. The NVCC flag is required when building 
+            # using C++11 (rather than OpenCV's expected C++98) but should not cause problems when 
+            # building on C++98.
+            BUILD_CUDA="-DWITH_CUDA=ON -DCUDA_NVCC_FLAGS=--expt-relaxed-constexpr"
             shift
             ;;
         "--build-qt-support")
