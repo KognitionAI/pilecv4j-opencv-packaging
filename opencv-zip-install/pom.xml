@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.jiminger</groupId>
+    <artifactId>opencv-packaging</artifactId>
+    <version>0</version>
+  </parent>
+  <artifactId>opencv-zip-install</artifactId>
+  <name>opencv-zip-install (${project.version})</name>
+  <description>Install/Deploy a zip containing the entier opencv build</description>
+  <packaging>pom</packaging>
+
+  <properties>
+    <developer.connection>scm:git:git@kognition.ml:kognition/third-party/opencv-install-zip.git</developer.connection>
+  </properties>
+
+  <!-- While this is a Kognition artifact, it's really the end result of -->
+  <!--    the utilities build and needs to go into the third-party repo -->
+  <distributionManagement>
+    <repository>
+      <id>${utilities.distribution.release.repo.id}</id>
+      <name>Utilities release</name>
+      <url>${utilities.distribution.release.repo.url}</url>
+    </repository>
+    <snapshotRepository>
+      <id>${utilities.distribution.snapshot.repo.id}</id>
+      <name>Utilities snapshot</name>
+      <url>${utilities.distribution.snapshot.repo.url}</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install-opencv-zip</id>
+            <phase>install</phase>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+            <configuration>
+              <file>${opencv-zip-path}</file>
+              <generatePom>true</generatePom>
+              <packaging>zip</packaging>
+              <version>${opencv-zip-version}</version>
+              <groupId>ai.kognition</groupId>
+              <artifactId>opencv-build</artifactId>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>            
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>deploy-opencv-zip</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>deploy-file</goal>
+            </goals>
+            <configuration>
+              <file>${opencv-zip-path}</file>
+              <repositoryId>${utilities.distribution.release.repo.id}</repositoryId>
+              <generatePom>true</generatePom>
+              <packaging>zip</packaging>
+              <version>${opencv-zip-version}</version>
+              <groupId>ai.kognition</groupId>
+              <artifactId>opencv-build</artifactId>
+              <url>${utilities.distribution.release.repo.url}</url>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>            
+    </plugins>
+  </build>
+
+</project>

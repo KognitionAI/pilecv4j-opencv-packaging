@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-r]"
+    echo "usage: [MVN=[path to maven]] OPENCV_INSTALL=[path to opencv install] ./package.sh [-r] [--deploy] [--version deploy-version]"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
     echo "    OPENCV_INSTALL must be defined"
     echo ""
@@ -9,6 +9,7 @@ usage() {
     echo "              IMPORTANT NOTE!!!: If you made an chagnes to the checked out code, selecting -r will have it all "
     echo "              reversed upon successful completion of this script."
     echo "  --deploy  : do a \"mvn deploy\" as part of building."
+    echo "  --version : Supply the version explicitly. This is to allow extended versions of opencv. E.g. \"3.4.3-cuda9.2\""
     exit 1
 }
 
@@ -93,6 +94,7 @@ fi
 ###############################################################
 RESET=
 MVN_TARGET=install
+DEPLOY_VERSION=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-r")
@@ -103,6 +105,12 @@ while [ $# -gt 0 ]; do
             MVN_TARGET=deploy
             shift
             ;;
+        "--version")
+            DEPLOY_VERSION="$2"
+            shift
+            shift
+            ;;
+
         *)
             usage
             ;;
@@ -115,12 +123,17 @@ OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
 OPENCV_JAVA_JAR="opencv-$OPENCV_SHORT_VERSION.jar"
 OPENCV_JAVA_INSTALL_ROOT="$(cwpath "$(dirname "$(find "$OPENCV_INSTALL" -name "$OPENCV_JAVA_JAR" -type f)")")"
 
+if [ "$DEPLOY_VERSION" = "" ]; then
+    DEPLOY_VERSION="$OPENCV_VERSION"
+fi
+
 echo "==========================================="
 echo "Building with:"
 echo "OPENCV_INSTALL=$OPENCV_INSTALL"
 echo "OPENCV_VERSION=$OPENCV_VERSION"
 echo "OPENCV_SHORT_VERSION=$OPENCV_SHORT_VERSION"
 echo "OPENCV_JAVA_INSTALL_ROOT=$OPENCV_JAVA_INSTALL_ROOT"
+echo "DEPLOY_VERSION=$DEPLOY_VERSION"
 echo "==========================================="
 
 # copy the libs into the project in a flat directory structure
@@ -188,13 +201,12 @@ ls -l "$OPENCV_LIBS_PATH"
 
 echo "Setting version in the project."
 
-$MVN versions:set -DnewVersion=$OPENCV_VERSION
+$MVN versions:set -DnewVersion=$DEPLOY_VERSION
 if [ "$?" -ne 0 ]; then
     echo "Failed to set version. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
 fi
 
-export OPENCV_VERSION
 export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT

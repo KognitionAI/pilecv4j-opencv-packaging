@@ -83,6 +83,7 @@ usage() {
     echo "       This doesn't work unless the working directory remains the same between runs."
     echo "    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but"
     echo "       don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader"
+    echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
     echo ""
     echo " Build Options"
     echo "    --static(default)|--no-static: force the build to statically link (dynamically link for \"--no-static\")"
@@ -96,7 +97,13 @@ usage() {
     echo "        option is untested on Windows)."
     echo "    --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be"
     echo "        installed, this option is untested on Windows)."
-    echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
+    echo "    --caffe-safe: Assuming you're building for CUDA (you must also specify --build-cuda-support), this"
+    echo "        option will produce a deployment that can be used to link against Caffe. This implies:"
+    echo "          1) As mentioned, you're also building with --build-cuda-support"
+    echo "          2) opencv's DNN support is disabled. This means that DNN Object detection and the contrib module"
+    echo "             \"text\" is also disabled."
+    echo "          3) This build will not also build protobuf. That means you need to have protobuf installed on "
+    echo "             the build host or the build will fail."
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -111,7 +118,7 @@ usage() {
     fi
 }
 
-WORKING_DIR=/tmp
+WORKING_DIR=/tmp/opencv
 OPENCV_VERSION=
 PARALLEL_BUILD=
 CMAKE_GENERATOR=
@@ -124,6 +131,8 @@ BUILD_SAMPLES=
 BUILD_CUDA=
 BUILD_QT=
 ZIPUP=
+
+CAFFE_SAFE=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -195,6 +204,11 @@ while [ $# -gt 0 ]; do
             BUILD_QT="-DWITH_QT=ON"
             shift
             ;;
+        "--caffe-safe")
+            # These clash with an independent build of caffe. dnn_objdetect and text are dependent on dnn
+            CAFFE_SAFE="-DBUILD_opencv_dnn=OFF -DBUILD_PROTOBUF=OFF"
+            shift
+            ;;
         "-help"|"--help"|"-h"|"-?")
             usage 0
             ;;
@@ -213,6 +227,11 @@ fi
 MAJOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/\..*$//1")"
 MINOR_VER="$(echo "$OPENCV_VERSION" | sed -e "s/^$MAJOR_VER\.//1" | sed -e "s/\..*$//1")"
 PATCH_VER="$(echo "$OPENCV_VERSION" | sed -e "s/^$MAJOR_VER\.$MINOR_VER\.//1")"
+
+if [ "$CAFFE_SAFE" != "" -a "$BUILD_CUDA" = "" ]; then
+    echo "ERROR: If you specify --caffe-safe you also need to specify --build-cuda-support"
+    exit 1
+fi
 
 # determine if this version is too old to build our native JNI code against.
 TOO_OLD=
@@ -235,6 +254,7 @@ if [ "$TO_PATCH_VER" = "$OPENCV_VERSION" ]; then
     PATCHME=true
 fi
 
+mkdir -p "$WORKING_DIR"
 if [ ! -d "$WORKING_DIR" ]; then
     echo "ERROR: \"$WORKING_DIR\" is not a valid directory."
     usage
@@ -289,98 +309,7 @@ if [ $? -ne 0 ]; then
 fi
 # ========================================
 
-if [ "$SKIPC" != "true" ]; then
-    rm -rf "$WORKING_DIR"/opencv 2>/dev/null
-
-    mkdir -p opencv
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't create \"$WORKING_DIR\"/opencv. Do I have permissions?"
-        usage
-    fi
-
-    cd opencv
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/opencv. Do I have permissions?"
-        usage
-    fi
-
-    mkdir -p sources
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't create \"$WORKING_DIR\"/opencv/sources. Do I have permissions?"
-        usage
-    fi
-
-    mkdir -p build
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't create \"$WORKING_DIR\"/opencv/build. Do I have permissions?"
-        usage
-    fi
-
-    cd sources
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/opencv/sources. Do I have permissions?"
-        usage
-    fi
-
-    "$GIT" clone https://github.com/opencv/opencv.git
-    if [ $? -ne 0 ]; then
-        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv.git\""
-        exit 1
-    fi
-
-    cd opencv
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/opencv/sources/opencv. Do I have permissions?"
-        usage
-    fi
-    "$GIT" checkout "$OPENCV_VERSION"
-    if [ $? -ne 0 ]; then
-        echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv"
-        exit 1
-    fi
-    if [ "$PATCHME" = "true" ]; then
-        echo "Applying patch for building a FAT jar."
-        # if it's not too old then apply the patch to build a fat jar
-        set -e
-        git cherry-pick f3dde79ed6f5e17f16f4e2ad9669841e0dd6887c
-        set +e
-    fi
-    cd ..
-
-    "$GIT" clone https://github.com/opencv/opencv_contrib.git
-    if [ $? -ne 0 ]; then
-        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv_contrib.git\""
-        exit 1
-    fi
-
-    cd opencv_contrib
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/opencv/sources/opencv_contrib. Do I have permissions?"
-        usage
-    fi
-    "$GIT" checkout "$OPENCV_VERSION"
-    if [ $? -ne 0 ]; then
-        echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv_contrib"
-        exit 1
-    fi
-    cd ..
-else
-    # we're still going to clean up the build directory
-    rm -rf "$WORKING_DIR"/opencv/build
-
-    mkdir -p "$WORKING_DIR"/opencv/build
-    if [ $? -ne 0 ]; then
-        echo "ERROR: Couldn't create \"$WORKING_DIR\"/opencv/build. Do I have permissions?"
-        usage
-    fi
-fi
-
-cd "$WORKING_DIR"/opencv/build
-if [ $? -ne 0 ]; then
-    echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/opencv/build. Do I have permissions?"
-    usage
-fi
-
+# ========================================
 # Attempt to caclulate JAVA_HOME if necessary
 if [ "$JAVA_HOME" = "" ]; then
     TYPE_JAVA="$(type java 2> /dev/null)"
@@ -419,28 +348,143 @@ if [ "$JAVA_HOME" = "" ]; then
 fi
 
 export JAVA_HOME
+# ========================================
 
-# Make sure cmake.out is removed because we need to grep it assuming it was empty/non-existent at the beginning of the run
-if [ -f "$WORKING_DIR/opencv/cmake.out" ]; then
-    rm "$WORKING_DIR/opencv/cmake.out" 2>/dev/null
+# figure out the deploy version
+
+# calculate the version
+# find the cuda version
+CUDA_VERSION=
+if [ "$BUILD_CUDA" != "" ]; then
+    if [ -f /usr/local/cuda/version.txt ]; then
+        CUDA_VERSION="$(cat /usr/local/cuda/version.txt | sed -e "s/^.*[Vv]ersion //1" | egrep -o -e "^[0-9][0-9]*[0-9]*\.[0-9][0-9]*[0-9]*[0-9]*")"
+    else
+        NVCC_EXE=
+        if [ "$(type nvcc 2>& | grep "not found")" != "" -a -x /usr/local/cuda/bin/nvcc ]; then
+            NVCC_EXE=/usr/local/cuda/bin/nvcc
+        else
+            NVCC_EXE=nvcc
+        fi
+        if [ "$NVCC_EXEC" != "" ]; then
+            CUDA_VERSION="$($NVCC_EXEC --version | egrep -e ", V[0-9][0-9]*[0-9]*[0-9]*\." | sed -e "s/^.*, V//1" | sed -E "s/\.[0-9][0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*$//1")"
+        else
+            echo "WARNING: Can't calculate the cuda version."
+        fi
+    fi
+    CUDA_VERSION="-cuda$CUDA_VERSION"
+fi
+
+DEPLOY_VERSION="$OPENCV_VERSION$CUDA_VERSION"
+
+#=========================================
+# Comment out the actual build by including the next line
+#if [ "Yo" = "" ]; then
+#=========================================
+
+# ========================================
+# Checkout everything and switch to the correct tag
+if [ "$SKIPC" != "true" ]; then
+    rm -rf "$WORKING_DIR"/* 2>/dev/null
+
+    mkdir -p sources
     if [ $? -ne 0 ]; then
-        echo "Couldn't remove \"$WORKING_DIR/opencv/cmake.out\" from a previous run. Can't continue."
+        echo "ERROR: Couldn't create \"$WORKING_DIR\"/sources. Do I have permissions?"
+        usage
+    fi
+
+    mkdir -p build
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Couldn't create \"$WORKING_DIR\"/build. Do I have permissions?"
+        usage
+    fi
+
+    cd sources
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/sources. Do I have permissions?"
+        usage
+    fi
+
+    "$GIT" clone https://github.com/opencv/opencv.git
+    if [ $? -ne 0 ]; then
+        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv.git\""
         exit 1
     fi
-    if [ -f "$WORKING_DIR/opencv/cmake.out" ]; then
-        echo "Couldn't remove \"$WORKING_DIR/opencv/cmake.out\" from a previous run. Can't continue."
+
+    cd opencv
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/sources/opencv. Do I have permissions?"
+        usage
+    fi
+    "$GIT" checkout "$OPENCV_VERSION"
+    if [ $? -ne 0 ]; then
+        echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv"
+        exit 1
+    fi
+    if [ "$PATCHME" = "true" ]; then
+        echo "Applying patch for building a FAT jar."
+        # if it's not too old then apply the patch to build a fat jar
+        set -e
+        git cherry-pick f3dde79ed6f5e17f16f4e2ad9669841e0dd6887c
+        set +e
+    fi
+    cd ..
+
+    "$GIT" clone https://github.com/opencv/opencv_contrib.git
+    if [ $? -ne 0 ]; then
+        echo "Failed to clone the main opencv repo using \"$GIT clone https://github.com/opencv/opencv_contrib.git\""
+        exit 1
+    fi
+
+    cd opencv_contrib
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/sources/opencv_contrib. Do I have permissions?"
+        usage
+    fi
+    "$GIT" checkout "$OPENCV_VERSION"
+    if [ $? -ne 0 ]; then
+        echo "ERROR:Failed to check out the tag $OPENCV_VERSION for opencv_contrib"
+        exit 1
+    fi
+    cd ..
+else
+    # we're still going to clean up the build directory
+    rm -rf "$WORKING_DIR"/build
+
+    mkdir -p "$WORKING_DIR"/build
+    if [ $? -ne 0 ]; then
+        echo "ERROR: Couldn't create \"$WORKING_DIR\"/build. Do I have permissions?"
+        usage
+    fi
+fi
+# ========================================
+
+cd "$WORKING_DIR"/build
+if [ $? -ne 0 ]; then
+    echo "ERROR: Couldn't cd to \"$WORKING_DIR\"/build. Do I have permissions?"
+    usage
+fi
+
+# Make sure cmake.out is removed because we need to grep it assuming it was empty/non-existent at the beginning of the run
+if [ -f "$WORKING_DIR/cmake.out" ]; then
+    rm "$WORKING_DIR/cmake.out" 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "Couldn't remove \"$WORKING_DIR/cmake.out\" from a previous run. Can't continue."
+        exit 1
+    fi
+    if [ -f "$WORKING_DIR/cmake.out" ]; then
+        echo "Couldn't remove \"$WORKING_DIR/cmake.out\" from a previous run. Can't continue."
         exit 1
     fi
 fi
 
-echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/opencv/cmake.out"
+echo "JAVA_HOME: \"$JAVA_HOME\"" | tee "$WORKING_DIR/cmake.out"
 
 if [ "$CMAKE_GENERATOR" != "" ]; then
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $CAFFE_SAFE -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G \"$CMAKE_GENERATOR\" ../sources/opencv" | tee -a "$WORKING_DIR/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $CAFFE_SAFE -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH -G "$CMAKE_GENERATOR" ../sources/opencv | tee -a "$WORKING_DIR/cmake.out"
 else
-    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath  "$WORKING_DIR/opencv/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/opencv/cmake.out"
-    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/opencv/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/opencv/cmake.out"
+    echo "\"$CMAKE\" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath  "$WORKING_DIR/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $CAFFE_SAFE -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv" | tee -a "$WORKING_DIR/cmake.out"
+    "$CMAKE" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$(cwpath "$WORKING_DIR/installed")" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $CAFFE_SAFE -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv | tee -a "$WORKING_DIR/cmake.out"
 fi
 
 if [ $? -ne 0 ]; then
@@ -449,7 +493,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # check cmake.out for the java wrappers
-if [ "$(grep -A4 -- '--   Java:' "$WORKING_DIR/opencv/cmake.out" | grep -- '--     Java wrappers:' | grep YES)" = "" ]; then
+if [ "$(grep -A4 -- '--   Java:' "$WORKING_DIR/cmake.out" | grep -- '--     Java wrappers:' | grep YES)" = "" ]; then
     echo "ERROR: It appears that the JNI wrappers wont build in this configuration."
     echo "       Some common reasons include:"
     echo "          1) Ant isn't installed or on the path"
@@ -459,7 +503,7 @@ if [ "$(grep -A4 -- '--   Java:' "$WORKING_DIR/opencv/cmake.out" | grep -- '--  
 fi
 
 # Get the make command from the cmake output
-MAKE="$(cpath "$(grep -- '--     CMake build tool:' "$WORKING_DIR/opencv/cmake.out" | sed -e "s/^.*CMake build tool: *//g")")"
+MAKE="$(cpath "$(grep -- '--     CMake build tool:' "$WORKING_DIR/cmake.out" | sed -e "s/^.*CMake build tool: *//g")")"
 
 if [ "$(echo "$MAKE" | grep -i msbuild)" != "" ]; then
     # We're on windows using Visual Studio
@@ -474,8 +518,8 @@ else
     RELEASE=
 fi
 
-echo "Building using:" | tee -a "$WORKING_DIR/opencv/cmake.out"
-echo "\"$MAKE\" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE" | tee -a "$WORKING_DIR/opencv/cmake.out"
+echo "Building using:" | tee -a "$WORKING_DIR/cmake.out"
+echo "\"$MAKE\" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE" | tee -a "$WORKING_DIR/cmake.out"
 
 "$MAKE" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE
 if [ $? -ne 0 ]; then
@@ -487,7 +531,7 @@ fi
 if [ "Linux" = "$PLAT" ]; then
     type execstack
     if [ $? -eq 0 ]; then
-        JAVA_SHARED_LIB=`find "$WORKING_DIR/opencv/installed" -name "libopencv_java*.so" | head -1`
+        JAVA_SHARED_LIB=`find "$WORKING_DIR/installed" -name "libopencv_java*.so" | head -1`
         if [ -f "$JAVA_SHARED_LIB" ]; then
             echo "Applying buffer overrun protection to \"$JAVA_SHARED_LIB\""
             execstack -s "$JAVA_SHARED_LIB"
@@ -499,6 +543,11 @@ if [ "Linux" = "$PLAT" ]; then
     fi
 fi
 
+#=========================================
+# Comment out the actual build by including the next line
+#fi
+#=========================================
+
 cd $PROJDIR
 if [ $? -ne 0 ]; then
     echo "Couldn't get back to the main project directory \"$PROJDIR\""
@@ -506,7 +555,7 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SKIPP" != "true" ]; then
-    OPENCV_INSTALL="$WORKING_DIR/opencv/installed" ./package.sh $DEPLOY_ME
+    OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME
 
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
@@ -521,7 +570,7 @@ if [ "$ZIPUP" != "" ]; then
 
     ZIP_PATH="$(realpath "$ZIPUP")"
     set -e
-    cd "$WORKING_DIR/opencv/installed"
+    cd "$WORKING_DIR/installed"
     set +e
     
     zip -r "$ZIP_PATH" ./
@@ -530,4 +579,14 @@ if [ "$ZIPUP" != "" ]; then
         echo "The zipping of the opencv install seems to have failed."
         exit 1
     fi
+
+    ZIP_INSTALL_TARGET=install
+    if [ "$DEPLOY_ME" != "" ]; then
+        ZIP_INSTALL_TARGET=deploy
+    fi
+
+    set -e
+    cd "$PROJDIR"/opencv-zip-install
+    "$MVN" -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $ZIP_INSTALL_TARGET
+    set +e
 fi
