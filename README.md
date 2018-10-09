@@ -16,33 +16,41 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 
 ```
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
-    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.3"
+    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.2"
  Options:
     -w /path/to/workingDirectory: this is /tmp by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
+    --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries.
 
     --help|-help: print this message
     --skip-checkout: This will "skip the checkout" of the opencv code. If you're playing with different
        options then once the code is checked out, using -sc will allow subsequent runs to progress faster.
        This doesn't work unless the working directory remains the same between runs.
     --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but
-       don't package them in a jar file for use with com.jiminger.utilities
+       don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader
+    --deploy: perform a "mvn deploy" rather than just a "mvn install"
 
  Build Options
     --static(default)|--no-static: force the build to statically link (dynamically link for "--no-static")
         the JNI libraries. By default, the JNI library is statically linked on all platform builds.
     --build-python: Build python3 wrappers. By default, the script blocks building the Python wrappers. If
         you want to build them anyway you can specify "--build-python" or "--build-python-3".
-    --build-python-2: Build python 2 wrappers. By default, the script blocks building the Python wrappers.
+    --build-python-2: Build python2 wrappers. By default, the script blocks building the Python wrappers.
         This is mutually exclusive with "--build-python".
     --build-samples: Build the OpenCV samples also.
     --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this
-        option is untested on Windows). Assumes a version of CUDA 
+        option is untested on Windows).
     --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be
         installed, this option is untested on Windows).
-    --deploy: perform a "mvn deploy" rather than just a "mvn install"
+    --caffe-safe: Assuming you're building for CUDA (you must also specify --build-cuda-support), this
+        option will produce a deployment that can be used to link against Caffe. This implies:
+          1) As mentioned, you're also building with --build-cuda-support
+          2) opencv's DNN support is disabled. This means that DNN Object detection and the contrib module
+             "text" is also disabled.
+          3) This build will NOT build the internal build of protobuf. That means you need to have protobuf 
+             installed on the build host or the build will fail.
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
     if MVN isn't set then the script assumes "mvn" is on the command line PATH
@@ -52,6 +60,8 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 ```
 
 ### Building using `fromscratch.sh` on Windows
+
+#### Note: The Windows build has been neglected for the time being. This note will be removed once it's back up and working correctly for all options.
 
 On Windows, the expectation is that `fromscratch.sh` will be run from MSYS2 or Cygwin. When running `fromscratch.sh` on Windows, you'll need to prepare a few prerequisites.
 
