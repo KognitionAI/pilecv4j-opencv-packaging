@@ -555,38 +555,14 @@ if [ $? -ne 0 ]; then
 fi
 
 if [ "$SKIPP" != "true" ]; then
-    OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME
-
+    if [ "$ZIPUP" != "" ]; then
+        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
+    else 
+        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME
+    fi
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."
         exit 1
     fi
 fi
 
-if [ "$ZIPUP" != "" ]; then
-    if [ -f "$ZIPUP" ]; then
-        rm "$ZIPUP"
-    fi
-
-    ZIP_PATH="$(realpath "$ZIPUP")"
-    set -e
-    cd "$WORKING_DIR/installed"
-    set +e
-    
-    zip -r "$ZIP_PATH" ./
-
-    if [ $? -ne 0 ]; then
-        echo "The zipping of the opencv install seems to have failed."
-        exit 1
-    fi
-
-    ZIP_INSTALL_TARGET=install
-    if [ "$DEPLOY_ME" != "" ]; then
-        ZIP_INSTALL_TARGET=deploy
-    fi
-
-    set -e
-    cd "$PROJDIR"/opencv-zip-install
-    "$MVN" -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $ZIP_INSTALL_TARGET
-    set +e
-fi

@@ -10,6 +10,7 @@ usage() {
     echo "              reversed upon successful completion of this script."
     echo "  --deploy  : do a \"mvn deploy\" as part of building."
     echo "  --version : Supply the version explicitly. This is to allow extended versions of opencv. E.g. \"3.4.3-cuda9.2\""
+    echo "  --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     exit 1
 }
 
@@ -95,6 +96,7 @@ fi
 RESET=
 MVN_TARGET=install
 DEPLOY_VERSION=
+ZIPUP=
 while [ $# -gt 0 ]; do
     case "$1" in
         "-r")
@@ -111,6 +113,11 @@ while [ $# -gt 0 ]; do
             shift
             ;;
 
+        "--zip")
+            ZIPUP=$2
+            shift
+            shift
+            ;;
         *)
             usage
             ;;
@@ -225,3 +232,27 @@ else
     $MVN versions:set -DnewVersion=0
 fi
 
+if [ "$ZIPUP" != "" ]; then
+    if [ -f "$ZIPUP" ]; then
+        rm "$ZIPUP"
+    fi
+
+    ZIP_PATH="$(realpath "$ZIPUP")"
+    set -e
+    cd "$OPENCV_INSTALL"
+    set +e
+    
+    zip -r "$ZIP_PATH" ./
+
+    if [ $? -ne 0 ]; then
+        echo "The zipping of the opencv install seems to have failed."
+        exit 1
+    fi
+
+    cd -
+
+    set -e
+    cd opencv-zip-install
+    "$MVN" -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
+    set +e
+fi
