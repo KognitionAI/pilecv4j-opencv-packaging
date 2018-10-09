@@ -242,7 +242,7 @@ elif [ $MIN_MAJOR_VER -eq $MAJOR_VER -a $MIN_MINOR_VER -gt $MINOR_VER ]; then
 fi
 
 if [ "$TOO_OLD" = "true" ]; then
-    echo "WARNING: The version you're building ($OPENCV_VERSION) is lower than the minimum version allowed ($MIN_MAJOR_VER.$MIN_MINOR_VER.x) to build the jiminger.com extentions."
+    echo "WARNING: The version you're building ($OPENCV_VERSION) is lower than the minimum version allowed ($MIN_MAJOR_VER.$MIN_MINOR_VER.x) to build the ai.kognition.pilecv4j extentions."
     if [ "$SKIPP" != "true" ]; then
         echo "         if you want to continue bulding this version you must supply the \"-sp\" option in order to skip building the extenstion."
         exit 1

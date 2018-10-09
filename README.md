@@ -138,7 +138,7 @@ Then you can build using the standard Linux build tools (`make clean`, `make`, `
 
 ### Manually buildng OpenCV on Windows
 
-If you don't want the SIFT algorithm it's possible to just install the OpenCV binaries rather than build locally and then just use `package.sh` to package the JNI binaries for use with `com.jiminger.utilities`. If you insist on building it manually this description might help:
+If you don't want the SIFT algorithm it's possible to just install the OpenCV binaries rather than build locally and then just use `package.sh` to package the JNI binaries for use with `ai.kognition.pilecv4j`. If you insist on building it manually this description might help:
 
 I managed to build OpenCV (3.3.1) on Windows using the following:
 
