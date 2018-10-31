@@ -84,6 +84,7 @@ usage() {
     echo "    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but"
     echo "       don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader"
     echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
+    echo "    --offline: Pass -O to maven."
     echo ""
     echo " Build Options"
     echo "    --static(default)|--no-static: force the build to statically link (dynamically link for \"--no-static\")"
@@ -131,6 +132,7 @@ BUILD_SAMPLES=
 BUILD_CUDA=
 BUILD_QT=
 ZIPUP=
+OFFLINE=
 
 CAFFE_SAFE=
 
@@ -185,6 +187,10 @@ while [ $# -gt 0 ]; do
             ;;
         "--deploy")
             DEPLOY_ME="--deploy"
+            shift
+            ;;
+        "--offline")
+            OFFLINE=--offline
             shift
             ;;
         "--build-samples")
@@ -357,7 +363,7 @@ export JAVA_HOME
 CUDA_VERSION=
 if [ "$BUILD_CUDA" != "" ]; then
     if [ -f /usr/local/cuda/version.txt ]; then
-        CUDA_VERSION="$(cat /usr/local/cuda/version.txt | sed -e "s/^.*[Vv]ersion //1" | egrep -o -e "^[0-9][0-9]*[0-9]*\.[0-9][0-9]*[0-9]*[0-9]*")"
+        CUDA_VERSION="$(cat /usr/local/cuda/version.txt | grep -i cuda | grep -i version | tail -1 | sed -e "s/^.*[Vv]ersion //1" | egrep -o -e "^[0-9][0-9]*[0-9]*\.[0-9][0-9]*[0-9]*[0-9]*")"
     else
         NVCC_EXE=
         if [ "$(type nvcc 2>& | grep "not found")" != "" -a -x /usr/local/cuda/bin/nvcc ]; then
@@ -556,9 +562,9 @@ fi
 
 if [ "$SKIPP" != "true" ]; then
     if [ "$ZIPUP" != "" ]; then
-        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
+        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
     else 
-        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh --version "$DEPLOY_VERSION" $DEPLOY_ME
+        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME
     fi
     if [ $? -ne 0 ]; then
         echo "The packaing step seems to have failed. I can't continue."

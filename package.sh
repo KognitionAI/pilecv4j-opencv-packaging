@@ -9,6 +9,7 @@ usage() {
     echo "              IMPORTANT NOTE!!!: If you made an chagnes to the checked out code, selecting -r will have it all "
     echo "              reversed upon successful completion of this script."
     echo "  --deploy  : do a \"mvn deploy\" as part of building."
+    echo "  --offline : Pass -O to maven."
     echo "  --version : Supply the version explicitly. This is to allow extended versions of opencv. E.g. \"3.4.3-cuda9.2\""
     echo "  --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     exit 1
@@ -97,6 +98,8 @@ RESET=
 MVN_TARGET=install
 DEPLOY_VERSION=
 ZIPUP=
+MVN_OFFLINE=
+
 while [ $# -gt 0 ]; do
     case "$1" in
         "-r")
@@ -105,6 +108,10 @@ while [ $# -gt 0 ]; do
             ;;
         "--deploy")
             MVN_TARGET=deploy
+            shift
+            ;;
+        "--offline")
+            MVN_OFFLINE=-o
             shift
             ;;
         "--version")
@@ -208,7 +215,7 @@ ls -l "$OPENCV_LIBS_PATH"
 
 echo "Setting version in the project."
 
-$MVN versions:set -DnewVersion=$DEPLOY_VERSION
+$MVN $MVN_OFFLINE versions:set -DnewVersion=$DEPLOY_VERSION
 if [ "$?" -ne 0 ]; then
     echo "Failed to set version. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
@@ -218,7 +225,7 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN clean $MVN_TARGET
+$MVN $MVN_OFFLINE clean $MVN_TARGET
 
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
@@ -253,6 +260,6 @@ if [ "$ZIPUP" != "" ]; then
 
     set -e
     cd opencv-zip-install
-    "$MVN" -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
+    "$MVN" $MVN_OFFLINE -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
     set +e
 fi
