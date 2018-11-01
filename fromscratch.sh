@@ -339,11 +339,13 @@ if [ "$JAVA_HOME" = "" ]; then
     CDIR="$(dirname "$JAVA_LOCATION")"
     DONE=
     while [ "$DONE" != "true" ]; do
-        if [ ! -d "$CDIR/java" -a ! -d "$CDIR/jre" ]; then
-            CDIR="$(dirname "$CDIR")"
-        elif [ "$CDIR" = "/" ]; then
+        if [ "$CDIR" = "/" -o "$CDIR" = "//" -o "$CDIR" = "" ]; then
             echo "Can't automatically locate the correct JAVA_HOME. Please set it explicitly."
             usage
+        fi
+        
+        if [ ! -d "$CDIR/java" -a ! -d "$CDIR/jre" ]; then
+            CDIR="$(dirname "$CDIR")"
         else
             DONE="true"
         fi
