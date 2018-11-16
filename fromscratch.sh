@@ -67,11 +67,13 @@ if [ "$WINDOWS" = "true" -a "$(arch | grep 64)" != "" ]; then
 fi
 # =============================================================================
 
+DEFAULT_WORKING_DIRECTORY=/tmp/opencv
+
 usage() {
     echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $0 -v opencv-version [options]"
     echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.4.2\"" 
     echo " Options:"
-    echo "    -w /path/to/workingDirectory: this is /tmp by default."
+    echo "    -w /path/to/workingDirectory: this is $DEFAULT_WORKING_DIRECTORY by default."
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
@@ -79,12 +81,12 @@ usage() {
     echo ""
     echo "    --help|-help: print this message"
     echo "    --skip-checkout: This will \"skip the checkout\" of the opencv code. If you're playing with different"
-    echo "       options then once the code is checked out, using -sc will allow subsequent runs to progress faster."
-    echo "       This doesn't work unless the working directory remains the same between runs."
+    echo "       options then once the code is checked out, using --skip-checkout will allow subsequent runs to progress"
+    echo "       faster. This doesn't work unless the working directory remains the same between runs."
     echo "    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but"
     echo "       don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader"
     echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
-    echo "    --offline: Pass -O to maven."
+    echo "    --offline: Pass -o to maven."
     echo ""
     echo " Build Options"
     echo "    --static(default)|--no-static: force the build to statically link (dynamically link for \"--no-static\")"
@@ -101,10 +103,12 @@ usage() {
     echo "    --caffe-safe: Assuming you're building for CUDA (you must also specify --build-cuda-support), this"
     echo "        option will produce a deployment that can be used to link against Caffe. This implies:"
     echo "          1) As mentioned, you're also building with --build-cuda-support"
-    echo "          2) opencv's DNN support is disabled. This means that DNN Object detection and the contrib module"
-    echo "             \"text\" is also disabled."
-    echo "          3) This build will NOT build the internal build of protobuf. That means you need to have protobuf"
-    echo "             installed on the build host or the build will fail."
+    echo "          2) opencv's DNN support is disabled as this conflicts with Caffee. This means that DNN Object"
+    echo "             detection and the contrib module \"text\" is also disabled, as is potentially other modules"
+    echo "             that depend on opencv's DNN support."
+    echo "          3) This option will disable the internal build of protobuf as you'll need the same version built"
+    echo "             into Caffe and so should be included as a common external build dependency. It will need to be"
+    echo "             installed on your build machine."
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -119,7 +123,7 @@ usage() {
     fi
 }
 
-WORKING_DIR=/tmp/opencv
+WORKING_DIR="$DEFAULT_WORKING_DIRECTORY"
 OPENCV_VERSION=
 PARALLEL_BUILD=
 CMAKE_GENERATOR=
@@ -392,7 +396,11 @@ DEPLOY_VERSION="$OPENCV_VERSION$CUDA_VERSION"
 # ========================================
 # Checkout everything and switch to the correct tag
 if [ "$SKIPC" != "true" ]; then
-    rm -rf "$WORKING_DIR"/* 2>/dev/null
+    # remove ONLY the expected generated files if they exist
+    rm -rf "$WORKING_DIR/build"/* 2>/dev/null
+    rm -rf "$WORKING_DIR/cmake.out"/* 2>/dev/null
+    rm -rf "$WORKING_DIR/installed"/* 2>/dev/null
+    rm -rf "$WORKING_DIR/sources"/* 2>/dev/null
 
     mkdir -p sources
     if [ $? -ne 0 ]; then

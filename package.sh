@@ -9,7 +9,7 @@ usage() {
     echo "              IMPORTANT NOTE!!!: If you made an chagnes to the checked out code, selecting -r will have it all "
     echo "              reversed upon successful completion of this script."
     echo "  --deploy  : do a \"mvn deploy\" as part of building."
-    echo "  --offline : Pass -O to maven."
+    echo "  --offline : Pass -o to maven."
     echo "  --version : Supply the version explicitly. This is to allow extended versions of opencv. E.g. \"3.4.3-cuda9.2\""
     echo "  --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     exit 1

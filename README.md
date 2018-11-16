@@ -18,7 +18,7 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
     -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.2"
  Options:
-    -w /path/to/workingDirectory: this is /tmp by default.
+    -w /path/to/workingDirectory: this is /tmp/opencv by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
@@ -26,11 +26,12 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 
     --help|-help: print this message
     --skip-checkout: This will "skip the checkout" of the opencv code. If you're playing with different
-       options then once the code is checked out, using -sc will allow subsequent runs to progress faster.
-       This doesn't work unless the working directory remains the same between runs.
+       options then once the code is checked out, using --skip-checkout will allow subsequent runs to progress
+       faster. This doesn't work unless the working directory remains the same between runs.
     --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but
        don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader
     --deploy: perform a "mvn deploy" rather than just a "mvn install"
+    --offline: Pass -o to maven.
 
  Build Options
     --static(default)|--no-static: force the build to statically link (dynamically link for "--no-static")
@@ -47,10 +48,12 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
     --caffe-safe: Assuming you're building for CUDA (you must also specify --build-cuda-support), this
         option will produce a deployment that can be used to link against Caffe. This implies:
           1) As mentioned, you're also building with --build-cuda-support
-          2) opencv's DNN support is disabled. This means that DNN Object detection and the contrib module
-             "text" is also disabled.
-          3) This build will NOT build the internal build of protobuf. That means you need to have protobuf 
-             installed on the build host or the build will fail.
+          2) opencv's DNN support is disabled as this conflicts with Caffee. This means that DNN Object
+             detection and the contrib module "text" is also disabled, as is potentially other modules
+             that depend on opencv's DNN support.
+          3) This option will disable the internal build of protobuf as you'll need the same version built
+             into Caffe and so should be included as a common external build dependency. It will need to be
+             installed on your build machine.
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
     if MVN isn't set then the script assumes "mvn" is on the command line PATH
