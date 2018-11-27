@@ -422,14 +422,21 @@ DEPLOY_VERSION="$OPENCV_VERSION$CUDA_VERSION"
 # ========================================
 # Checkout everything and switch to the correct tag
 # remove these even if we're skipping the checkout
-set +e
-rm -rf "$WORKING_DIR/build"/* 2>/dev/null
-rm -rf "$WORKING_DIR/cmake.out"/* 2>/dev/null
-rm -rf "$WORKING_DIR/installed"/* 2>/dev/null
+if [ -d "$WORKING_DIR/build" ]; then
+    rm -rf "$WORKING_DIR/build"/* 2>/dev/null
+fi
+if [ -f "$WORKING_DIR/cmake.out" ]; then
+    rm -rf "$WORKING_DIR/cmake.out"
+fi
+if [ -d "$WORKING_DIR/installed" ]; then
+    rm -rf "$WORKING_DIR/installed"/* 2>/dev/null
+fi
+
 if [ "$SKIPC" != "true" ]; then
     # remove ONLY the expected generated files if they exist
-    rm -rf "$WORKING_DIR/sources"/* 2>/dev/null
-    set -e
+    if [ -d "$WORKING_DIR/sources" ]; then
+        rm -rf "$WORKING_DIR/sources"/* 2>/dev/null
+    fi
 
     mkdir -p sources
     mkdir -p build
@@ -454,7 +461,6 @@ if [ "$SKIPC" != "true" ]; then
 
     cd ..
 else
-    set -e
     # we're still going to clean up the build directory
     mkdir -p "$WORKING_DIR"/build
 fi
@@ -540,7 +546,7 @@ fi
 
 # if we're on linux, and execstack is installed, then we want to fixup the opencv_${shortversion} library
 if [ "Linux" = "$PLAT" ]; then
-    set -e
+    set +e
     type execstack
     if [ $? -eq 0 ]; then
         JAVA_SHARED_LIB=`find "$WORKING_DIR/installed" -name "libopencv_java*.so" | head -1`
@@ -553,7 +559,7 @@ if [ "Linux" = "$PLAT" ]; then
     else
         echo "NOT applying overrun protection. You should install 'execstack' using 'sudo apt-get install execstack'. Continuing..."
     fi
-    set +e
+    set -e
 fi
 
 #=========================================
