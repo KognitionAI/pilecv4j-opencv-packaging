@@ -94,6 +94,8 @@ usage() {
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
+    echo "    --install-prefix /path/to/install/opencv : Install opencv to the given path. The default is the"
+    echo "       a directory called 'installed' under the working directory."
     echo "    --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     echo ""
     echo "    --help|-help: print this message"
@@ -162,11 +164,17 @@ OFFLINE=
 BUILD_DNN=
 # default for use is to NOT build the internal protobuf
 BUILD_PROTOBUF="-DBUILD_PROTOBUF=OFF -DPROTOBUF_UPDATE_FILES=ON"
+INSTALL_PREFIX=
 
 while [ $# -gt 0 ]; do
     case "$1" in
         "-w")
             WORKING_DIR=$2
+            shift
+            shift
+            ;;
+        "--install-prefix")
+            INSTALL_PREFIX=$2
             shift
             shift
             ;;
@@ -290,6 +298,10 @@ mkdir -p "$WORKING_DIR"
 if [ ! -d "$WORKING_DIR" ]; then
     echo "ERROR: \"$WORKING_DIR\" is not a valid directory."
     usage
+fi
+
+if [ "$INSTALL_PREFIX" = "" ]; then
+    INSTALL_PREFIX="$WORKING_DIR"/installed
 fi
 
 # ========================================
@@ -489,7 +501,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$WORKING_DIR/installed")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 
@@ -525,7 +537,7 @@ echo "\"$MAKE\" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE" | tee -a "$WORKING_DIR
 "$MAKE" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE
 
 # HACK to repair incorrectly generate protobuf dependency
-OCV_CMAKE_CONFIG=`find "$WORKING_DIR/installed" -name "OpenCVModules.cmake"`
+OCV_CMAKE_CONFIG=`find "$INSTALL_PREFIX" -name "OpenCVModules.cmake"`
 DO_REPLACE_PROTOBUF_LINK=true
 if [ "$OCV_CMAKE_CONFIG" = "" ]; then
     echo "WARNING: Cannot find the OpenCVModules.cmake so I cannot correct potention downstream Protobuf link dependency."
@@ -533,7 +545,7 @@ if [ "$OCV_CMAKE_CONFIG" = "" ]; then
 fi
 
 if [ $(echo "$OCV_CMAKE_CONFIG" | wc -l) -ne 1 ]; then
-    echo "WARNING: There seeme to be more than one OpenCVModules.cmake in the install directory \"$WORKING_DIR/installed\""
+    echo "WARNING: There seeme to be more than one OpenCVModules.cmake in the install directory \"$INSTALL_PREFIX\""
     DO_REPLACE_PROTOBUF_LINK=
 fi
 
@@ -549,7 +561,7 @@ if [ "Linux" = "$PLAT" ]; then
     set +e
     type execstack
     if [ $? -eq 0 ]; then
-        JAVA_SHARED_LIB=`find "$WORKING_DIR/installed" -name "libopencv_java*.so" | head -1`
+        JAVA_SHARED_LIB=`find "$INSTALL_PREFIX" -name "libopencv_java*.so" | head -1`
         if [ -f "$JAVA_SHARED_LIB" ]; then
             echo "Applying buffer overrun protection to \"$JAVA_SHARED_LIB\""
             execstack -s "$JAVA_SHARED_LIB"
@@ -571,9 +583,9 @@ cd "$PROJDIR"
 
 if [ "$SKIPP" != "true" ]; then
     if [ "$ZIPUP" != "" ]; then
-        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
+        OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
     else 
-        OPENCV_INSTALL="$WORKING_DIR/installed" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME
+        OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME
     fi
 fi
 
