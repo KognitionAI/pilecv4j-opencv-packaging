@@ -12,25 +12,6 @@
   <description>Install/Deploy a zip containing the entier opencv build</description>
   <packaging>pom</packaging>
 
-  <properties>
-    <developer.connection>scm:git:git@kognition.ml:kognition/third-party/opencv-install-zip.git</developer.connection>
-  </properties>
-
-  <!-- While this is a Kognition artifact, it's really the end result of -->
-  <!--    the utilities build and needs to go into the third-party repo -->
-  <distributionManagement>
-    <repository>
-      <id>${utilities.distribution.release.repo.id}</id>
-      <name>Utilities release</name>
-      <url>${utilities.distribution.release.repo.url}</url>
-    </repository>
-    <snapshotRepository>
-      <id>${utilities.distribution.snapshot.repo.id}</id>
-      <name>Utilities snapshot</name>
-      <url>${utilities.distribution.snapshot.repo.url}</url>
-    </snapshotRepository>
-  </distributionManagement>
-
   <build>
     <plugins>
       <plugin>

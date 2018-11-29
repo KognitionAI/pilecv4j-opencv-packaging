@@ -12,7 +12,7 @@ TO_PATCH_VER=3.4.0
 # Preamble
 # =============================================================================
 set -e
-MAIN_DIR="$(dirname "$0")"
+MAIN_DIR="$(dirname "$BASH_SOURCE")"
 cd "$MAIN_DIR"
 PROJDIR="$(pwd -P)"
 
@@ -84,18 +84,18 @@ if [ "$WINDOWS" = "true" -a "$(arch | sgrep 64)" != "" ]; then
 fi
 # =============================================================================
 
-DEFAULT_WORKING_DIRECTORY=/tmp/opencv
+DEFAULT_WORKING_DIRECTORY=/tmp/opencv-working
 
 usage() {
-    echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $0 -v opencv-version [options]"
-    echo "    -v:  opencv-version. This needs to be specified. e.g. \"-v 3.4.2\"" 
+    echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $BASH_SOURCE -v opencv-version [options]"
+    echo "    -v  opencv-version: This needs to be specified. e.g. \"-v 3.4.2\""
+    echo "    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path. The default is the"
+    echo "       a directory called 'installed' under the working directory."
     echo " Options:"
     echo "    -w /path/to/workingDirectory: this is $DEFAULT_WORKING_DIRECTORY by default."
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
     echo "       Visual Studio then this translates to /m option to \"msbuild\""
     echo "    -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise."
-    echo "    --install-prefix /path/to/install/opencv : Install opencv to the given path. The default is the"
-    echo "       a directory called 'installed' under the working directory."
     echo "    --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
     echo ""
     echo "    --help|-help: print this message"
@@ -173,7 +173,7 @@ while [ $# -gt 0 ]; do
             shift
             shift
             ;;
-        "--install-prefix")
+        "-i"|"--install-prefix")
             INSTALL_PREFIX=$2
             shift
             shift
@@ -301,7 +301,8 @@ if [ ! -d "$WORKING_DIR" ]; then
 fi
 
 if [ "$INSTALL_PREFIX" = "" ]; then
-    INSTALL_PREFIX="$WORKING_DIR"/installed
+    echo "ERROR: You must specify the --install-prefix option."
+    usage
 fi
 
 # ========================================

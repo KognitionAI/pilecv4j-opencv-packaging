@@ -249,7 +249,7 @@ if [ "$ZIPUP" != "" ]; then
     cd "$OPENCV_INSTALL"
     set +e
     
-    zip -r "$ZIP_PATH" ./
+    zip -y -r "$ZIP_PATH" ./
 
     if [ $? -ne 0 ]; then
         echo "The zipping of the opencv install seems to have failed."
