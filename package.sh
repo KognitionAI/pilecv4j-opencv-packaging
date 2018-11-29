@@ -260,6 +260,6 @@ if [ "$ZIPUP" != "" ]; then
 
     set -e
     cd opencv-zip-install
-    "$MVN" $MVN_OFFLINE -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
+    "$MVN" -B $MVN_OFFLINE -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
     set +e
 fi

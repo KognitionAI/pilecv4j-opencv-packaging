@@ -89,8 +89,7 @@ DEFAULT_WORKING_DIRECTORY=/tmp/opencv-working
 usage() {
     echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $BASH_SOURCE -v opencv-version [options]"
     echo "    -v  opencv-version: This needs to be specified. e.g. \"-v 3.4.2\""
-    echo "    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path. The default is the"
-    echo "       a directory called 'installed' under the working directory."
+    echo "    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path."
     echo " Options:"
     echo "    -w /path/to/workingDirectory: this is $DEFAULT_WORKING_DIRECTORY by default."
     echo "    -jN: specify the number of threads to use when running make. If the cmake-generator is"
