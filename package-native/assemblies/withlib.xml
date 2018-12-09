@@ -20,7 +20,7 @@
     </fileSet>
     <fileSet>
       <directory>${opencv-libs-path}</directory>
-      <outputDirectory>/</outputDirectory>
+      <outputDirectory>${platform}</outputDirectory>
       <includes>
         <include>*</include>
       </includes>

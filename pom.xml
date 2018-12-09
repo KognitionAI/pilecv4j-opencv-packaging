@@ -49,5 +49,56 @@
     <module>install-jar</module>
     <module>package-native</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>linux-x86</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>i386</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>linux-x86_32</platform>
+      </properties>
+    </profile>
+    <profile>
+      <id>linux-64bit</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>linux-x86_64</platform>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86_64</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>amd64</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>windows-x86_64</platform>
+      </properties>
+    </profile>
+    <profile>
+      <id>windows-x86</id>
+      <activation>
+        <os>
+          <family>windows</family>
+          <arch>x86</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>windows-x86_32</platform>
+      </properties>
+    </profile>
+  </profiles>
   
 </project>

@@ -58,8 +58,7 @@ elif [ "$(echo "$OS" | grep Linux)" != "" ]; then
 else
     echo "Sorry, I don't know how to handle building for \"$OS.\" Currently this works on:"
     echo "      1) Windows using MSYS2"
-    echo "      2) Windows using Cygwin"
-    echo "      3) Linux"
+    echo "      2) Linux"
     exit 1
 fi
 

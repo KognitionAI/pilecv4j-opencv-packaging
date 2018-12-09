@@ -78,9 +78,11 @@ segrep() {
 
 
 # Determine arch automatically for Windows so you don't need to specify it in the generator
+OS_SPECIFIC_CMAKE_OPTIONS=
 CMAKE_ARCH=
 if [ "$WINDOWS" = "true" -a "$(arch | sgrep 64)" != "" ]; then
     CMAKE_ARCH="-Ax64"
+    OS_SPECIFIC_CMAKE_OPTIONS="-DBUILD_WITH_STATIC_CRT=ON"
 fi
 # =============================================================================
 
@@ -501,7 +503,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 
