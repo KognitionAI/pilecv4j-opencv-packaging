@@ -80,8 +80,10 @@ segrep() {
 # Determine arch automatically for Windows so you don't need to specify it in the generator
 OS_SPECIFIC_CMAKE_OPTIONS=
 CMAKE_ARCH=
-if [ "$WINDOWS" = "true" -a "$(arch | sgrep 64)" != "" ]; then
-    CMAKE_ARCH="-Ax64"
+if [ "$WINDOWS" = "true" ]; then
+    if [ "$(arch | sgrep 64)" != "" ]; then
+        CMAKE_ARCH="-Ax64"
+    fi
     OS_SPECIFIC_CMAKE_OPTIONS="-DBUILD_WITH_STATIC_CRT=ON"
 fi
 # =============================================================================
