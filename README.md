@@ -4,7 +4,7 @@ This project will allow you to build from scratch, package into a jar file, and 
 
 If you are writing OpenCV code in java and you use this project to build and package the native binaries, you can use `dempsy-commons` utilities to load them from your code. This project will package the OpenCv JNI binaries into a jar file so it will work just like any other java dependencies. The `dempsy-commons` utilities will scan the classpath and automatically `System.load()` the native libraries out of the jar files. This makes it easy to incorporate OpenCv into your java projects and rely on the same dependency mechanisms for the native code that you normally rely on for java code. 
 
-Alternatively, if you're not interested in packaging up the binaries but only building OpenCv, you can do that from scratch, on either Windows (using an MSYS2 or Cygwin shell) or Linux.
+Alternatively, if you're not interested in packaging up the binaries but only building OpenCv, you can do that from scratch, on either Windows (using an MSYS2/MinGW64) or Linux.
 
 By default, the scripts here build the JNI shared library so that it's statically linked to the OpenCv binaries. That way the JNI library contains all of the other necessary object code so you don't need to manage a local install of the OpenCV binaries. 
 
@@ -16,9 +16,10 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 
 ```
 [GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
-    -v:  opencv-version. This needs to be specified. e.g. "-v 3.4.2"
+    -v  opencv-version: This needs to be specified. e.g. "-v 3.4.2"
+    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path.
  Options:
-    -w /path/to/workingDirectory: this is /tmp/opencv by default.
+    -w /path/to/workingDirectory: this is /tmp/opencv-working by default.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
@@ -45,59 +46,48 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
         option is untested on Windows).
     --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be
         installed, this option is untested on Windows).
-    --caffe-safe: Assuming you're building for CUDA (you must also specify --build-cuda-support), this
-        option will produce a deployment that can be used to link against Caffe. This implies:
-          1) As mentioned, you're also building with --build-cuda-support
-          2) opencv's DNN support is disabled as this conflicts with Caffee. This means that DNN Object
-             detection and the contrib module "text" is also disabled, as is potentially other modules
-             that depend on opencv's DNN support.
-          3) This option will disable the internal build of protobuf as you'll need the same version built
-             into Caffe and so should be included as a common external build dependency. It will need to be
-             installed on your build machine.
+    --no-dnn: disable opencv's DNN support. As a note, OpenCV's DNN seems to conflict with Caffee. Disabling
+        OpenCV's DNN also means that DNN Object detection and the contrib module "text" is also disabled,
+        as is potentially other modules that depend on opencv's DNN support.
+    --build-protobuf: This option will enable OpenCV's internal build of protobuf. While the raw OpenCV build
+        defaults to building this, this script defaults to blocking it since it tends to conflict with
+        other systems that also rely on protobufs. NOT selecting this option implies protobuf will need to be
+        installed on your build machine.
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
     if MVN isn't set then the script assumes "mvn" is on the command line PATH
     if CMAKE isn't set then the script assumes "cmake" is on the command line PATH
     if JAVA_HOME isn't set then the script will locate the "java" executable on the PATH
       and will attempt infer the JAVA_HOME environment variable from there.
+
+    If you set the environment variable "VERBOSE=1" then you will get script debugging output as well as
+        verbose 'make' output.
+    To build against an externally built, non-system installed, version of Protobuf's (only needed for DNN)
+       you set/append to the environment variable "CMAKE_PREFIX_PATH" to point to the root of the Protobuf
+       install.
 ```
 
 ### Building using `fromscratch.sh` on Windows
 
-#### Note: The Windows build has been neglected for the time being. This note will be removed once it's back up and working correctly for all options.
+On Windows, the expectation is that `fromscratch.sh` will be run from `mingw64` bash shell. When running `fromscratch.sh` on Windows, you'll need to prepare a few prerequisites.
 
-On Windows, the expectation is that `fromscratch.sh` will be run from MSYS2 or Cygwin. When running `fromscratch.sh` on Windows, you'll need to prepare a few prerequisites.
-
-1. MSYS2 or Cygwin installed, updated and set up.
-1. Java is installed and on your MSYS2/Cygwin PATH or JAVA_HOME is set correctly.
+1. MSYS2/mingw64 installed, updated and set up.
+1. Java is installed and JAVA_HOME is set correctly.
 1. Apache ANT is installed (unzip to a directory on Windows)
 1. The **Windows** version of CMake is installed. *
-1. You'll also need either MinGW toolchain OR Visual Studio installed (there are currently issues using the artifacts generated from the MSYS2 toolchain) depending on which CMake generator you choose.
-1. You'll need the **Windows** version of Python2 installed. **
+1. You'll also need Visual Studio (community edition is fine) installed  with Visual C++ (there are currently issues using the artifacts generated from the MSYS2 toolchain).
+1. You'll need the **Windows** version of Python2 or Python3 installed and configured on the `mingw64` PATH. **
 
-__* Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 or Cygwin version of cmake.__
+__* Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 version of cmake.__
 
-__** Note: This requires the Windows version of Python 2. You can try using the MSYS2 version but it's untested at this point.__
+__** Note: This requires the Windows version of Python. You can try using the MSYS2 version but it's untested at this point.__
 
-When you run `fromscratch.sh` you'll need to make sure `ant.bat`, `python.exe`, and `java.exe` are on your MSYS2/Cygwin PATH (Note: it will work without `java.exe` on your PATH if `JAVA_HOME` is set). The following are some examples that worked for me:
+When you run `fromscratch.sh` you'll need to make sure `ant.bat`, `python.exe` are on your MSYS2/minGW64 bash `PATH` and `JAVA_HOME` is set appropriately. The following are some examples that worked for me:
 
-#### Example 1
-From MSYS2 bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `java` is on the PATH):
+#### Example
+From `mingw64` bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `JAVA_HOME` is set):
 ``` bash
 PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 -G "Visual Studio 14 2015 Win64" -j8
-```
-
-#### Example 2
-From MSYS2 bash, specifying JAVA_HOME, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using the MinGW toolchain to build and parallel build on 8 cores (the Windows version of Python2 is already on the PATH):
-``` bash
-JAVA_HOME="$(cygpath "$JAVA_HOME")" CMAKE=/c/Program\ Files/CMake/bin/cmake PATH="$PATH":/c/utils/apache-ant-1.10.1/bin ./fromscratch.sh -v 3.3.1 -G "MSYS Makefiles" -j8
-```
-
-This example assumes the MSYS2 toolchain is already installed. You can do that using the following:
-``` bash
-pacman -Sy --noconfirm --needed base-devel
-pacman -Sy --noconfirm --needed msys2-devel
-pacman -Sy --noconfirm --needed mingw-w64-x86_64-toolchain
 ```
 
 ### Building using `fromscratch.sh` on Linux
@@ -110,7 +100,7 @@ When running `fromscratch.sh` on Linux, you'll need to a few prerequisites.
 
 Using `fromscratch.sh` on Linux is similar to Windows described above.
 
-#### Example 1
+#### Example
 
 From bash, specifying the location of the maven executable, and building OpenCV version 3.3.1 in parallel using 8 cores:
 ``` bash
@@ -172,7 +162,7 @@ The OpenCV distribution will first need to be built following the instructions f
 
 Once you've installed or built the Open CV binary distribution, you can package and install the Java jar with the native binaries by pointing to the installed distribution via the `OPENCV_INSTALL` variable and running the `package.sh` script as follows:
 
-On windows, from git-bash, MSYS2/MinGW, or Cygwin you can invoke something like:
+On windows, from MSYS2/MinGW you can invoke something like:
 
 ```MVN=/c/utils/apache-3.2.2/bin/mvn OPENCV_INSTALL=`cygpath -w /c/Users/[user]/projects/opencv-3.3.1` ./package.sh```
 
