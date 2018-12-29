@@ -72,10 +72,20 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
 On Windows, the expectation is that `fromscratch.sh` will be run from `mingw64` bash shell. When running `fromscratch.sh` on Windows, you'll need to prepare a few prerequisites.
 
 1. MSYS2/mingw64 installed, updated and set up.
+    1. Follow the [MSYS2 Installation instructions and download](https://www.msys2.org). While it shouldn't make a difference, I ran `mingw64` and NOT `MSYS2` when following the instructions.
+    1. Install the following:
+        1. `pacman -Su --noconfirm --needed rsync`
+        1. `pacman -Su --noconfirm --needed diffutils`
+        1. `pacman -Su --noconfirm --needed git`
+        1. `pacman -Su --noconfirm --needed mingw-w64-x86_64-pkg-config`
+        1. `pacman -Su --noconfirm --needed unzip`
+        1. (optional) `pacman -Su --noconfirm --needed vim`
+        1. (optional) `pacman -Su --noconfirm --needed emacs`
 1. Java is installed and JAVA_HOME is set correctly.
-1. Apache ANT is installed (unzip to a directory on Windows)
-1. The **Windows** version of CMake is installed. *
-1. You'll also need Visual Studio (community edition is fine) installed  with Visual C++ (there are currently issues using the artifacts generated from the MSYS2 toolchain).
+1. Apache ANT is installed (unzip to a directory on Windows) and included on your `PATH` in *both* Windows and `mingw64`. For `mingw64` I added the location to my `PATH` variable in `.bashrc`.
+1. Apache Maven is installed (unzip to a directory on Windows) and included on your `PATH` on `mingw64`. I added the location to my `PATH` variable in `.bashrc`.
+1. The **Windows** version of CMake is installed and is on the `mingw64` `PATH`. I added the location to my `PATH` variable in `.bashrc`. *
+1. You'll also need Visual Studio (community edition is fine) installed with Visual C++. Currently there are issues using the artifacts generated from the MSYS2 toolchain.
 1. You'll need the **Windows** version of Python2 or Python3 installed and configured on the `mingw64` PATH. **
 
 __* Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 version of cmake.__
@@ -84,11 +94,29 @@ __** Note: This requires the Windows version of Python. You can try using the MS
 
 When you run `fromscratch.sh` you'll need to make sure `ant.bat`, `python.exe` are on your MSYS2/minGW64 bash `PATH` and `JAVA_HOME` is set appropriately. The following are some examples that worked for me:
 
-#### Example
+#### Example 1
 From `mingw64` bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `JAVA_HOME` is set):
 ``` bash
-PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 -G "Visual Studio 14 2015 Win64" -j8
+PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 --install-prefix /c/utils -G "Visual Studio 14 2015" -j8
 ```
+
+#### Example 2
+Assuming all of your paths are set up as suggested above, the following should work:
+``` bash
+./fromscratch.sh -v 4.0.1 -G "Visual Studio 15 2017" --install-prefix /c/utils -j8
+```
+
+My  `mingw64` `.bashrc` file has the following lines:
+```
+export PATH=/c/Program\ Files/Java/jdk-11.0.1/bin:"$PATH"
+export PATH="$PATH":/c/Program\ Files/Python37
+export PATH="$PATH":/c/Program\ Files/CMake/bin
+export PATH="$PATH":/c/utils/apache-maven-3.6.0/bin
+export PATH="$PATH":/c/utils/apache-ant-1.10.5/bin
+export JAVA_HOME=/c/Program\ Files/Java/jdk-11.0.1
+```
+
+Obviously yours will be different depending on where you installed the various packages.
 
 ### Building using `fromscratch.sh` on Linux
 
