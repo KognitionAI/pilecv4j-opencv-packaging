@@ -241,7 +241,9 @@ while [ $# -gt 0 ]; do
             # compiler. It usually C++98 (gnu++98) for Ubuntu/Fedora/etc. The NVCC flag is required when building 
             # using C++11 (rather than OpenCV's expected C++98) but should not cause problems when building on C++98. 
             # This change is relevant only for CUDA 9.0 or higher but should not effect 8.X builds.
-            BUILD_CUDA="-DWITH_CUDA=ON -DCUDA_NVCC_FLAGS=--expt-relaxed-constexpr -DWITH_CUFFT=ON -DWITH_CUBLAS=ON -DWITH_NVCUVID=ON"
+            #
+            # Since cuda 10 opencv doesn't compile without disabling cudacodec since it's deprecated.
+            BUILD_CUDA="-DWITH_CUDA=ON -DCUDA_NVCC_FLAGS=--expt-relaxed-constexpr -DWITH_CUFFT=ON -DWITH_CUBLAS=ON -DWITH_NVCUVID=ON -DBUILD_opencv_cudacodec=OFF"
             shift
             ;;
         "--build-qt-support")
