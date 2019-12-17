@@ -129,6 +129,7 @@ usage() {
     echo "        defaults to building this, this script defaults to blocking it since it tends to conflict with"
     echo "        other systems that also rely on protobufs. NOT selecting this option implies protobuf will need to be"
     echo "        installed on your build machine."
+    echo "    --with-tbb: This option will build OpenCV using libtbb. It's assumed that libtbb-dev is installed."
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -168,6 +169,7 @@ BUILD_DNN=
 # default for use is to NOT build the internal protobuf
 BUILD_PROTOBUF="-DBUILD_PROTOBUF=OFF -DPROTOBUF_UPDATE_FILES=ON"
 INSTALL_PREFIX=
+WITH_TBB=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -257,6 +259,10 @@ while [ $# -gt 0 ]; do
             ;;
         "--build-protobuf")
             BUILD_PROTOBUF="-DBUILD_PROTOBUF=ON"
+            shift
+            ;;
+        "--with-tbb")
+            WITH_TBB="-DWITH_TBB=ON"
             shift
             ;;
         "-help"|"--help"|"-h"|"-?")
@@ -383,24 +389,16 @@ if [ "$JAVA_HOME" = "" ]; then
           JAVA_LOCATION="$(readlink "$JAVA_LOCATION")"
     done
 
-    # find the directory with bin and jre as a subdir
-    CDIR="$(dirname "$JAVA_LOCATION")"
-    DONE=
-    while [ "$DONE" != "true" ]; do
-        if [ "$CDIR" = "/" -o "$CDIR" = "//" -o "$CDIR" = "" ]; then
-            echo "Can't automatically locate the correct JAVA_HOME. Please set it explicitly."
-            usage
-        fi
+    # java should be in a "bin" directory
+    if [ "$(basename "$(dirname "$JAVA_LOCATION")")" = "bin" ]; then
+        JAVA_HOME="$(dirname "$(dirname "$JAVA_LOCATION")")"
+        echo "JAVA_HOME not set. It seems to be at $JAVA_HOME so I'm going with that."
+        echo "JAVA_HOME :$JAVA_HOME"
+    else
+        echo "Can't automatically locate the correct JAVA_HOME. Please set it explicitly."
+        usage
         
-        if [ ! -d "$CDIR/java" -a ! -d "$CDIR/jre" ]; then
-            CDIR="$(dirname "$CDIR")"
-        else
-            DONE="true"
-        fi
-    done
-
-    JAVA_HOME="$(cpath "$CDIR")"
-    echo "JAVA_HOME :$JAVA_HOME"
+    fi
 fi
 
 export JAVA_HOME
@@ -507,7 +505,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 
