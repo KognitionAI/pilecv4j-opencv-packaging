@@ -414,13 +414,13 @@ if [ "$BUILD_CUDA" != "" ]; then
         CUDA_VERSION="$(cat /usr/local/cuda/version.txt | sgrep -i cuda | sgrep -i version | tail -1 | sed -e "s/^.*[Vv]ersion //1" | segrep -o -e "^[0-9][0-9]*[0-9]*\.[0-9][0-9]*[0-9]*[0-9]*")"
     else
         NVCC_EXE=
-        if [ "$(type nvcc 2>& | sgrep "not found")" != "" -a -x /usr/local/cuda/bin/nvcc ]; then
+        if [ "$(type nvcc 2>&1 | sgrep "not found")" != "" -a -x /usr/local/cuda/bin/nvcc ]; then
             NVCC_EXE=/usr/local/cuda/bin/nvcc
         else
             NVCC_EXE=nvcc
         fi
-        if [ "$NVCC_EXEC" != "" ]; then
-            CUDA_VERSION="$($NVCC_EXEC --version | segrep -e ", V[0-9][0-9]*[0-9]*[0-9]*\." | sed -e "s/^.*, V//1" | sed -E "s/\.[0-9][0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*$//1")"
+        if [ "$NVCC_EXE" != "" ]; then
+            CUDA_VERSION="$($NVCC_EXE --version | segrep -e ", V[0-9][0-9]*[0-9]*[0-9]*\." | sed -e "s/^.*, V//1" | sed -E "s/\.[0-9][0-9]*[0-9]*[0-9]*[0-9]*[0-9]*[0-9]*$//1")"
         else
             echo "WARNING: Can't calculate the cuda version."
         fi
