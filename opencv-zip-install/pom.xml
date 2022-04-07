@@ -30,7 +30,7 @@
               <packaging>zip</packaging>
               <version>${opencv-zip-version}</version>
               <groupId>ai.kognition</groupId>
-              <artifactId>opencv-build</artifactId>
+              <artifactId>opencv-build-${platform}</artifactId>
             </configuration>
           </execution>
         </executions>
@@ -52,7 +52,7 @@
               <packaging>zip</packaging>
               <version>${opencv-zip-version}</version>
               <groupId>ai.kognition</groupId>
-              <artifactId>opencv-build</artifactId>
+              <artifactId>opencv-build-${platform}</artifactId>
               <url>${utilities.distribution.release.repo.url}</url>
             </configuration>
           </execution>

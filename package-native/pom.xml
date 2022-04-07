@@ -7,7 +7,7 @@
     <artifactId>opencv-packaging</artifactId>
     <version>0</version>
   </parent>
-  <artifactId>opencv-lib-jar</artifactId>
+  <artifactId>opencv-${platform}</artifactId>
   <name>opencv-lib-jar (${project.version})</name>
   <description>Package all opencv with lib</description>
 

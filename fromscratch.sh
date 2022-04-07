@@ -130,6 +130,8 @@ usage() {
     echo "        other systems that also rely on protobufs. NOT selecting this option implies protobuf will need to be"
     echo "        installed on your build machine."
     echo "    --with-tbb: This option will build OpenCV using libtbb. It's assumed that libtbb-dev is installed."
+    echo "    --no-contrib: Don't build the contrib modules which are build by default. The pilecv4j module lib-tracking"
+    echo "        depends on contrib. So that module wont build if you use this option."
     echo ""
     echo "    if GIT isn't set then the script assumes \"git\" is on the command line PATH"
     echo "    if MVN isn't set then the script assumes \"mvn\" is on the command line PATH"
@@ -163,6 +165,8 @@ BUILD_CUDA=
 BUILD_QT=
 ZIPUP=
 OFFLINE=
+CONTRIB_OPTION=-DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules
+CONTRIB="true"
 
 # The default is to build the DNN. This variable is set when we disable building the DNN
 BUILD_DNN=
@@ -263,6 +267,11 @@ while [ $# -gt 0 ]; do
             ;;
         "--with-tbb")
             WITH_TBB="-DWITH_TBB=ON"
+            shift
+            ;;
+        "--no-contrib")
+            CONTRIB=
+            CONTRIB_OPTION=
             shift
             ;;
         "-help"|"--help"|"-h"|"-?")
@@ -470,12 +479,14 @@ if [ "$SKIPC" != "true" ]; then
     fi
     cd ..
 
-    "$GIT" clone https://github.com/opencv/opencv_contrib.git
+    if [ "$CONTRIB" = "true" ]; then
+        "$GIT" clone https://github.com/opencv/opencv_contrib.git
 
-    cd opencv_contrib
-    "$GIT" checkout "$OPENCV_VERSION"
+        cd opencv_contrib
+        "$GIT" checkout "$OPENCV_VERSION"
 
-    cd ..
+        cd ..
+    fi
 else
     # we're still going to clean up the build directory
     mkdir -p "$WORKING_DIR"/build
@@ -505,7 +516,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" $CONTRIB_OPTION $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 

@@ -60,7 +60,7 @@
         </os>
       </activation>
       <properties>
-        <platform>linux-x86_32</platform>
+        <platform>linux-x86</platform>
       </properties>
     </profile>
     <profile>
@@ -96,7 +96,7 @@
         </os>
       </activation>
       <properties>
-        <platform>windows-x86_32</platform>
+        <platform>windows-x86</platform>
       </properties>
     </profile>
   </profiles>
