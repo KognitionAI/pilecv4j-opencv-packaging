@@ -24,6 +24,9 @@ set +e
 if [ "$(echo "$OS" | grep MINGW)" != "" ]; then
     PLAT=MINGW
     WINDOWS=true
+elif [ "$(echo "$OS" | grep MSYS)" != "" ]; then
+    PLAT=MINGW
+    WINDOWS=true
 elif [ "$(echo "$OS" | grep CYGWIN)" != "" ]; then
     PLAT=CYGWIN
     WINDOWS=true
