@@ -26,7 +26,7 @@ if [ ! -d "$OPENCV_INSTALL" ]; then
 fi
 
 # find the opencv make
-OPENCV_MAKE="$(find "$OPENCV_INSTALL" -name OpenCVConfig-version.cmake | head -1)"
+OPENCV_MAKE="$(find "$OPENCV_INSTALL"/ -name OpenCVConfig-version.cmake | head -1)"
 
 if [ ! -f "$OPENCV_MAKE" ]; then
     echo "ERROR: Couldn't find OpenCVConfig-version.cmake in any directory under \"$OPENCV_INSTALL\""
@@ -227,7 +227,7 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN -B $MVN_OFFLINE clean $MVN_TARGET
+$MVN -X -B $MVN_OFFLINE clean $MVN_TARGET
 
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
