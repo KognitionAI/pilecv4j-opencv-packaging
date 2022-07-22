@@ -333,6 +333,11 @@ if [ "$INSTALL_PREFIX" = "" ]; then
     usage
 fi
 
+if [ -L "$INSTALL_PREFIX" ]; then
+    echo "ERROR: \"$INSTALL_PREFIX\" is a symbolic link. It can't be."
+    exit 1
+fi
+
 # ========================================
 # Make the WORKING_DIR an absolute path
 cd "$WORKING_DIR"
