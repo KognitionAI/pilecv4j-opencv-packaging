@@ -29,7 +29,7 @@
               <generatePom>true</generatePom>
               <packaging>zip</packaging>
               <version>${opencv-zip-version}</version>
-              <groupId>ai.kognition</groupId>
+              <groupId>ai.kognition.pilecv4j</groupId>
               <artifactId>opencv-build-${platform}</artifactId>
             </configuration>
           </execution>
@@ -51,7 +51,7 @@
               <generatePom>true</generatePom>
               <packaging>zip</packaging>
               <version>${opencv-zip-version}</version>
-              <groupId>ai.kognition</groupId>
+              <groupId>ai.kognition.pilecv4j</groupId>
               <artifactId>opencv-build-${platform}</artifactId>
               <url>${utilities.distribution.release.repo.url}</url>
             </configuration>
