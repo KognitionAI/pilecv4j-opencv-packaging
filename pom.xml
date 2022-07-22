@@ -16,6 +16,14 @@
     <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
   </properties>
 
+  <licenses>
+    <license>
+      <name>Apache 2</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
   <scm>
     <developerConnection>scm:git:git@github.com:jimfcarroll/opencv-packaging.git</developerConnection>
     <tag>master</tag>
@@ -38,7 +46,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>opencv</groupId>
+        <groupId>ai.kognition.pilecv4j</groupId>
         <artifactId>opencv</artifactId>
         <version>${opencv-version}</version>
       </dependency>

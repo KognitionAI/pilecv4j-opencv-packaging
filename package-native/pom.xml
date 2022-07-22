@@ -16,7 +16,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>opencv</groupId>
+      <groupId>ai.kognition.pilecv4j</groupId>
       <artifactId>opencv</artifactId>
       <optional>true</optional>
     </dependency>

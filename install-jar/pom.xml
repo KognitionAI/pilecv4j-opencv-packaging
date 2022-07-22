@@ -29,7 +29,7 @@
               <generatePom>true</generatePom>
               <packaging>jar</packaging>
               <version>${opencv-version}</version>
-              <groupId>opencv</groupId>
+              <groupId>ai.kognition.pilecv4j</groupId>
               <artifactId>opencv</artifactId>
             </configuration>
           </execution>
@@ -51,7 +51,7 @@
               <generatePom>true</generatePom>
               <packaging>jar</packaging>
               <version>${opencv-version}</version>
-              <groupId>opencv</groupId>
+              <groupId>ai.kognition.pilecv4j</groupId>
               <artifactId>opencv</artifactId>
               <url>${utilities.distribution.release.repo.url}</url>
             </configuration>

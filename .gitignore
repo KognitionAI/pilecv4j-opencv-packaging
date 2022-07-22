@@ -9,7 +9,8 @@ junk.txt
 \#*
 
 # mvn temps
-*/target/
+.target
+target/
 
 *.versionsBackup
 package-native/src/temp

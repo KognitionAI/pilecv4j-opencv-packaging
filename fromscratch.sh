@@ -563,7 +563,7 @@ echo "\"$MAKE\" $PARALLEL_BUILD $INSTALL_TARGET $RELEASE" | tee -a "$WORKING_DIR
 OCV_CMAKE_CONFIG=`find "$INSTALL_PREFIX" -name "OpenCVModules.cmake"`
 DO_REPLACE_PROTOBUF_LINK=true
 if [ "$OCV_CMAKE_CONFIG" = "" ]; then
-    echo "WARNING: Cannot find the OpenCVModules.cmake so I cannot correct potention downstream Protobuf link dependency."
+    echo "WARNING: Cannot find the OpenCVModules.cmake so I cannot correct potential downstream Protobuf link dependency."
     DO_REPLACE_PROTOBUF_LINK=
 fi
 
@@ -577,7 +577,6 @@ if [ "$DO_REPLACE_PROTOBUF_LINK" = "true" ]; then
     cat /tmp/"$(basename "$OCV_CMAKE_CONFIG")" | sed -e "s/<LINK_ONLY:libprotobuf>/<LINK_ONLY:protobuf>/g" > "$OCV_CMAKE_CONFIG"
     rm /tmp/"$(basename "$OCV_CMAKE_CONFIG")"
 fi
-
 
 # if we're on linux, and execstack is installed, then we want to fixup the opencv_${shortversion} library
 if [ "Linux" = "$PLAT" ]; then
