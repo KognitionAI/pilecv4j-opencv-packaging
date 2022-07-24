@@ -238,7 +238,7 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN -X -B $MVN_OFFLINE clean $MVN_TARGET
+$MVN -B $MVN_OFFLINE clean $MVN_TARGET
 
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
