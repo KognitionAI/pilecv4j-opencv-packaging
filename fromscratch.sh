@@ -94,9 +94,18 @@ fi
 DEFAULT_WORKING_DIRECTORY=/tmp/opencv-working
 
 usage() {
-    echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $BASH_SOURCE -v opencv-version [options]"
-    echo "    -v  opencv-version: This needs to be specified. e.g. \"-v 3.4.2\""
+    echo "[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] $BASH_SOURCE --opencv-version opencv-version --version version [options]"
+    echo ""
+    echo "    --opencv-version opencv-version: This needs to be specified. e.g. \"--opencv-version 4.5.2\""
+    echo "    --version version: This needs to be specified. e.g. \"--version 1.0\""
     echo "    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path."
+    echo ""
+    echo "  This checkout and build opencv then it will package it up so that it can be used from a self contained"
+    echo "     java jar without any additional dependencies installed. The artifact created will be:"
+    echo "             \"ai.kognition.pilecv4j:opencv-(platform):(version)-opencv(opencv-version)[-cuda(cuda-version)]:jar\""
+    echo "     a few examples:"
+    echo "             \"ai.kognition.pilecv4j:opencv-windows-x86_64:1.0-opencv4.5.2:jar\""
+    echo "             \"ai.kognition.pilecv4j:opencv-linux-x86_64:1.0-opencv4.5.2-cuda11.2:jar\""
     echo " Options:"
     echo "    -w /path/to/workingDirectory: this is $DEFAULT_WORKING_DIRECTORY by default. The directory is created"
     echo "       and deleted as necessary."
@@ -127,7 +136,7 @@ usage() {
     echo "        This is mutually exclusive with \"--build-python\"."
     echo "    --build-samples: Build the OpenCV samples also."
     echo "    --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this"
-    echo "        option is untested on Windows)."
+    echo "        option is untested on Windows). The cuda version will be determined by what's installed."
     echo "    --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be"
     echo "        installed, this option is untested on Windows)."
     echo "    --no-dnn: disable opencv's DNN support. As a note, OpenCV's DNN seems to conflict with Caffee. Disabling"
@@ -165,6 +174,7 @@ usage() {
 
 WORKING_DIR="$DEFAULT_WORKING_DIRECTORY"
 OPENCV_VERSION=
+PCV4J_VERSION=
 PARALLEL_BUILD=
 CMAKE_GENERATOR_OPT=
 SKIPC=
@@ -200,8 +210,13 @@ while [ $# -gt 0 ]; do
             shift
             shift
             ;;
-        "-v")
+        "--opencv-version")
             OPENCV_VERSION=$2
+            shift
+            shift
+            ;;
+        "--version")
+            PCV4J_VERSION=$2
             shift
             shift
             ;;
@@ -302,6 +317,11 @@ while [ $# -gt 0 ]; do
 done
 
 # consistency checks
+if [ "$PCV4J_VERSION" = "" ]; then
+    echo "ERROR: you didn't specify a version"
+    usage
+fi
+
 if [ "$OPENCV_VERSION" = "" ]; then
     echo "ERROR: you didn't specify and opencv version"
     usage
@@ -465,7 +485,7 @@ if [ "$BUILD_CUDA" != "" ]; then
     CUDA_VERSION="-cuda$CUDA_VERSION"
 fi
 
-DEPLOY_VERSION="$OPENCV_VERSION$CUDA_VERSION"
+DEPLOY_VERSION="$PCV4J_VERSION-$OPENCV_VERSION$CUDA_VERSION"
 
 #=========================================
 # Comment out the actual build by including the next line
