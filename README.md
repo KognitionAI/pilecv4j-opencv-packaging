@@ -8,18 +8,26 @@ Alternatively, if you're not interested in packaging up the binaries but only bu
 
 By default, the scripts here build the JNI shared library so that it's statically linked to the OpenCv binaries. That way the JNI library contains all of the other necessary object code so you don't need to manage a local install of the OpenCV binaries. 
 
-Optionally, on Windows, you can simply `package.sh` the binary distribution downloaded and installed from the OpenCV website. The JNI library DLLs installed using OpenCV's Windows installers are already statically linked to the rest of OpenCv (at least this was my experience using 3.0.0 to the current release, 3.3.1).
-
 ## Buliding OpenCV `fromscratch.sh`
 
 `fromscratch.sh` should build OpenCV on Linux or Windows (as the name implies) completely from scratch. It will check out OpenCV, build and install your chosen version, and then run the packaging to install the artifacts into the local maven repository. The usage message is as follows:
 
 ```
-[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh -v opencv-version [options]
-    -v  opencv-version: This needs to be specified. e.g. "-v 3.4.2"
+[GIT=/path/to/git/binary/git] [JAVA_HOME=/path/to/java/jdk/root] [MVN=/path/to/mvn/mvn] [CMAKE=/path/to/cmake/cmake] ./fromscratch.sh --opencv-version opencv-version --version version [options]
+
+    --opencv-version opencv-version: This needs to be specified. e.g. "--opencv-version 4.5.2"
+    --version version: This needs to be specified. e.g. "--version 1.0"
     --install-prefix|-i /path/to/install/opencv : Install opencv to the given path.
+
+  This checkout and build opencv then it will package it up so that it can be used from a self contained
+     java jar without any additional dependencies installed. The maven artifact created will be:
+             "ai.kognition.pilecv4j:opencv-(platform):(version)-opencv(opencv-version)[-cuda(cuda-version)]:jar"
+     a few examples:
+             "ai.kognition.pilecv4j:opencv-windows-x86_64:1.0-opencv4.5.2:jar"
+             "ai.kognition.pilecv4j:opencv-linux-x86_64:1.0-opencv4.5.2-cuda11.2:jar"
  Options:
-    -w /path/to/workingDirectory: this is /tmp/opencv-working by default.
+    -w /path/to/workingDirectory: this is /tmp/opencv-working by default. The directory is created
+       and deleted as necessary.
     -jN: specify the number of threads to use when running make. If the cmake-generator is
        Visual Studio then this translates to /m option to "msbuild"
     -G cmake-generator: specifially specify the cmake generator to use. The default is chosen otherwise.
@@ -32,6 +40,10 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
     --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but
        don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader
     --deploy: perform a "mvn deploy" rather than just a "mvn install"
+    --deploy-zip: by default the zipped up opencv distribution created using --zip will not be deployed even
+       when the --deploy flag is used. If you want to explicitly deploy it you'll need to include --deploy-zip
+       also. Obviously if you specify --deploy-zip you must also request the opencv distribution be zipped
+       using --zip
     --offline: Pass -o to maven.
 
  Build Options
@@ -43,7 +55,7 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
         This is mutually exclusive with "--build-python".
     --build-samples: Build the OpenCV samples also.
     --build-cuda-support: Build the OpenCV using NVidia's CUDA (Note: CUDA must already be installed, this
-        option is untested on Windows).
+        option is untested on Windows). The cuda version will be determined by what's installed.
     --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be
         installed, this option is untested on Windows).
     --no-dnn: disable opencv's DNN support. As a note, OpenCV's DNN seems to conflict with Caffee. Disabling
@@ -52,7 +64,14 @@ Optionally, on Windows, you can simply `package.sh` the binary distribution down
     --build-protobuf: This option will enable OpenCV's internal build of protobuf. While the raw OpenCV build
         defaults to building this, this script defaults to blocking it since it tends to conflict with
         other systems that also rely on protobufs. NOT selecting this option implies protobuf will need to be
-        installed on your build machine.
+        installed on your build machine. You should set the environment variable CMAKE_PREFIX_PATH to point
+        to point to the directory where the version of protobufs you're using is installed.
+
+        If you don't want to use protobufs at all then you need to prevent then Nvidia DNN from building.
+        see --no-dnn.
+    --with-tbb: This option will build OpenCV using libtbb. It's assumed that libtbb-dev is installed.
+    --no-contrib: Don't build the contrib modules which are build by default. The pilecv4j module lib-tracking
+        depends on contrib. So that module wont build if you use this option.
 
     if GIT isn't set then the script assumes "git" is on the command line PATH
     if MVN isn't set then the script assumes "mvn" is on the command line PATH
@@ -82,11 +101,11 @@ On Windows, the expectation is that `fromscratch.sh` will be run from `mingw64` 
         1. (optional) `pacman -Su --noconfirm --needed vim`
         1. (optional) `pacman -Su --noconfirm --needed emacs`
 1. Java is installed and JAVA_HOME is set correctly.
-1. Apache ANT is installed (unzip to a directory on Windows) and included on your `PATH` in *both* Windows and `mingw64`. For `mingw64` I added the location to my `PATH` variable in `.bashrc`.
-1. Apache Maven is installed (unzip to a directory on Windows) and included on your `PATH` on `mingw64`. I added the location to my `PATH` variable in `.bashrc`.
-1. The **Windows** version of CMake is installed and is on the `mingw64` `PATH`. I added the location to my `PATH` variable in `.bashrc`. *
+1. Apache ANT is installed (unzip to a directory on Windows) and included on your `PATH` in *both* Windows and `MSYS/mingw64`. For `MSYS/mingw64` I added the location to my `PATH` variable in `.bashrc`.
+1. Apache Maven is installed (unzip to a directory on Windows) and included on your `PATH` on `MSYS/mingw64`. I added the location to my `PATH` variable in `.bashrc`.
+1. The **Windows** version of CMake is installed and is on the `MSYS/mingw64` `PATH`. I added the location to my `PATH` variable in `.bashrc`. *
 1. You'll also need Visual Studio (community edition is fine) installed with Visual C++. Currently there are issues using the artifacts generated from the MSYS2 toolchain.
-1. You'll need the **Windows** version of Python2 or Python3 installed and configured on the `mingw64` PATH. **
+1. You'll need the **Windows** version of Python3 installed and configured on the `MSYS2/mingw64` PATH. **
 
 __* Note: This requires the Windows version of CMake and wont run correctly with the MSYS2 version of cmake.__
 
@@ -95,18 +114,18 @@ __** Note: This requires the Windows version of Python. You can try using the MS
 When you run `fromscratch.sh` you'll need to make sure `ant.bat`, `python.exe` are on your MSYS2/minGW64 bash `PATH` and `JAVA_HOME` is set appropriately. The following are some examples that worked for me:
 
 #### Example 1
-From `mingw64` bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `JAVA_HOME` is set):
+From `MSYS2` bash, specifying the location of ANT, selecting the **Windows** CMAKE, building OpenCV version 3.3.1, and using Visual Studio (the Windows version of Python2 is already on the PATH and `JAVA_HOME` is set):
 ``` bash
 PATH="$PATH":/c/utils/apache-ant-1.10.1/bin CMAKE=/c/Program\ Files/CMake/bin/cmake ./fromscratch.sh -v 3.3.1 --install-prefix /c/utils -G "Visual Studio 14 2015" -j8
 ```
 
 #### Example 2
-Assuming all of your paths are set up as suggested above, the following should work:
+Assuming all of your paths are set up as suggested above, using with Windows PATH environment variabels and `.bashrc`, the following should work:
 ``` bash
 ./fromscratch.sh -v 4.0.1 -G "Visual Studio 15 2017" --install-prefix /c/utils -j8
 ```
 
-My  `mingw64` `.bashrc` file has the following lines:
+My  `MSYS2` `.bashrc` file has the following lines:
 ```
 export PATH=/c/Program\ Files/Java/jdk-11.0.1/bin:"$PATH"
 export PATH="$PATH":/c/Program\ Files/Python37
@@ -117,6 +136,8 @@ export JAVA_HOME=/c/Program\ Files/Java/jdk-11.0.1
 ```
 
 Obviously yours will be different depending on where you installed the various packages.
+
+Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) for bootstrapping me on building this for Windows.
 
 ### Building using `fromscratch.sh` on Linux
 
@@ -137,67 +158,8 @@ MVN=[/path/to/mvn/mvn] ./fromscratch.sh -v 3.3.1 -j8
 
 This example will use the default `cmake-generator` for your Linux distribution.
 
-## Manually Buliding OpenCV
-
-The latest version of the image processing utilities requires `opencv_contrib` in order to get the SIFT algorithm. This requires OpenCV to be built for whatever system you're going to run it on since `opencv_contrib` isn't distributed as a binary. If you don't care about using the SIFT algorithm you can install OpenCV from the binaries on Windows. Since you'll need to build on Linux anyway (or at least it seems that way for 3.3.1) you might as well follow the instructions here to build both the `opencv` and `opencv_contrib` projects.
-
-__Of course, if you just use the `fromscratch.sh` script then you don't need to go through all this.__
-
-Hat Tip to Osama Abbas for [Install OpenCV 3.3.0 + Python 2: Build and Compile on Windows 10](https://www.youtube.com/watch?v=MXqpHIMdKfU) for bootstrapping me on building this for Windows.
-
-First, create a directory to build everything under. `opencv` will do. Create 2 subdirectories: `source`,' and `build`. In the `source` directory check out of github the main `opencv` tree and also the `opencv_contrib`. Switch to your desired opencv version using *git checkout _[tag]_* (the current released tag is `3.3.1`). 
-
-### Manually buildng OpenCV on Linux
-
-When building opencv on Linux, you need to set JAVA_HOME and also have 'ant' installed. These are not done by default when following the instructions on OpenCVs website. The following is an *example* that worked for me _after installing ant_:
+On Ubuntu, this is an example of the last build I did:
 
 ``` bash
-JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/[user]/utils/opencv-3.3.1 -DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules ../sources/opencv
+./fromscratch.sh -j12 --version 0.16 --opencv-version 4.5.2 --build-python --with-tbb --no-dnn --zip /tmp/opencv4.5.2.zip --install-prefix /opt/opencv --deploy
 ```
-
-Then you can build using the standard Linux build tools (`make clean`, `make`, `make install`).
-
-### Manually buildng OpenCV on Windows
-
-If you don't want the SIFT algorithm it's possible to just install the OpenCV binaries rather than build locally and then just use `package.sh` to package the JNI binaries for use with `ai.kognition.pilecv4j`. If you insist on building it manually this description might help:
-
-I managed to build OpenCV (3.3.1) on Windows using the following:
-
-1. Make sure Java is installed.
-1. Install apache ANT (unzip to a directory on windows)
-1. Install the Windows version of CMake.
-1. Install Visual Studio C/C++ installed.
-1. Install the *Windows* Python 2.7.
-1. Set the environment varialbes:
-    1. JAVA_HOME=[e.g. C:/Program Files/Java/jdk1.8.0_92]
-    1. Add $JAVA_HOME/bin to the *Windows* PATH (User path works)
-    1. Add the directory that 'ant.bat' is in to your *windows* PATH (User path works)
-
-I installed Python in the default location (C:\Python27) and CMake found it.
-
-To generate the build projects, from the build directory using a CMD prompt run:
-
-```cmake -G "Visual Studio 14 2015 Win64" -DOPENCV_EXTRA_MODULES_PATH=..\sources\opencv_contrib\modules -DBUILD_SHARED_LIBS=false -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=[e.g. C:\utils\opencv-3.3.1-win] ..\sources\opencv```
-
-Obviously if you have a different Visual Studio installed you'll select that one for the -G option.
-
-Then load the .sln file into Visual Studio.
-Build the `INSTALL` project which will build everything else and install it to the directory you specified above.
-
-### Manually packaging your distribution.
-
-The OpenCV distribution will first need to be built following the instructions for the particular platform on the [OpenCV website](http://opencv.org/) and/or above. If you don't want the SIFT algorithm, and you're on Windows, it's possible to just install the OpenCV binaries. See the section on building for more details.
-
-Once you've installed or built the Open CV binary distribution, you can package and install the Java jar with the native binaries by pointing to the installed distribution via the `OPENCV_INSTALL` variable and running the `package.sh` script as follows:
-
-On windows, from MSYS2/MinGW you can invoke something like:
-
-```MVN=/c/utils/apache-3.2.2/bin/mvn OPENCV_INSTALL=`cygpath -w /c/Users/[user]/projects/opencv-3.3.1` ./package.sh```
-
-An example on Linux would be:
-
-```GIT=[path to git] MVN=[mvn command] OPENCV_INSTALL="[absolute path to opencv-3.3.1 install dir]" ./package.sh```
-
-`MVN` defaults to `mvn` therefore assuming it's on the path
-`GIT` defaults to `git` therefore assuming it's on the path
-

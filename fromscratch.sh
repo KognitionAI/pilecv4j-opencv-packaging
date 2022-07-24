@@ -101,7 +101,7 @@ usage() {
     echo "    --install-prefix|-i /path/to/install/opencv : Install opencv to the given path."
     echo ""
     echo "  This checkout and build opencv then it will package it up so that it can be used from a self contained"
-    echo "     java jar without any additional dependencies installed. The artifact created will be:"
+    echo "     java jar without any additional dependencies installed. The maven artifact created will be:"
     echo "             \"ai.kognition.pilecv4j:opencv-(platform):(version)-opencv(opencv-version)[-cuda(cuda-version)]:jar\""
     echo "     a few examples:"
     echo "             \"ai.kognition.pilecv4j:opencv-windows-x86_64:1.0-opencv4.5.2:jar\""
