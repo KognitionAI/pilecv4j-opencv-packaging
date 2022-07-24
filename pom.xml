@@ -17,6 +17,19 @@
   </properties>
 
   <url>git@github.com:KognitionAI/pilecv4j-opencv-packaging</url>
+  <developers>
+    <developer>
+      <id>jimfcarroll</id>
+      <name>Jim Carroll</name>
+      <url>https://github.com/jimfcarroll</url>
+      <organization>Very Little</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+    </developer>
+  </developers>
 
   <licenses>
     <license>
