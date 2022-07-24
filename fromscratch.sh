@@ -624,13 +624,17 @@ fi
 cd "$PROJDIR"
 
 if [ "$SKIPP" != "true" ]; then
+    echo "PACKAGING COMMAND:"
     if [ "$ZIPUP" != "" ]; then
         if [ "$DEPLOY_ZIP" != "" ]; then
+            echo "OPENCV_INSTALL=\"$INSTALL_PREFIX\" ./package.sh $OFFLINE --version \"$DEPLOY_VERSION\" $DEPLOY_ME --zip \"$ZIPUP\" \"$DEPLOY_ZIP\""
             OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP" "$DEPLOY_ZIP"
         else
+            echo "OPENCV_INSTALL=\"$INSTALL_PREFIX\" ./package.sh $OFFLINE --version \"$DEPLOY_VERSION\" $DEPLOY_ME --zip \"$ZIPUP\""
             OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
         fi
     else 
+        echo "OPENCV_INSTALL=\"$INSTALL_PREFIX\" ./package.sh $OFFLINE --version \"$DEPLOY_VERSION\" $DEPLOY_ME"
         OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME
     fi
 fi
