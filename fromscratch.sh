@@ -485,7 +485,7 @@ if [ "$BUILD_CUDA" != "" ]; then
     CUDA_VERSION="-cuda$CUDA_VERSION"
 fi
 
-DEPLOY_VERSION="$PCV4J_VERSION-$OPENCV_VERSION$CUDA_VERSION"
+DEPLOY_VERSION="$PCV4J_VERSION-opencv$OPENCV_VERSION$CUDA_VERSION"
 
 #=========================================
 # Comment out the actual build by including the next line
