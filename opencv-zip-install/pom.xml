@@ -35,30 +35,40 @@
           </execution>
         </executions>
       </plugin>            
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>deploy-opencv-zip</id>
-            <phase>deploy</phase>
-            <goals>
-              <goal>deploy-file</goal>
-            </goals>
-            <configuration>
-              <file>${opencv-zip-path}</file>
-              <repositoryId>${utilities.distribution.release.repo.id}</repositoryId>
-              <generatePom>true</generatePom>
-              <packaging>zip</packaging>
-              <version>${opencv-zip-version}</version>
-              <groupId>ai.kognition.pilecv4j</groupId>
-              <artifactId>opencv-build-${platform}</artifactId>
-              <url>${utilities.distribution.release.repo.url}</url>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>            
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>deploy-opencv-dist-zip</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-deploy-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>deploy-opencv-zip</id>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>deploy-file</goal>
+                </goals>
+                <configuration>
+                  <file>${opencv-zip-path}</file>
+                  <repositoryId>${pilecv4j.distribution.release.repo.id}</repositoryId>
+                  <generatePom>true</generatePom>
+                  <packaging>zip</packaging>
+                  <version>${opencv-zip-version}</version>
+                  <groupId>ai.kognition.pilecv4j</groupId>
+                  <artifactId>opencv-build-${platform}</artifactId>
+                  <url>${pilecv4j.distribution.release.repo.url}</url>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>            
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
 </project>

@@ -34,8 +34,9 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>            
-      <plugin>
+      </plugin>
+<!-- There should be no need to deploy the raw opencv built JNI jar since it will be merged with the platform libs -->
+<!--      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-deploy-plugin</artifactId>
         <executions>
@@ -47,17 +48,17 @@
             </goals>
             <configuration>
               <file>${opencv-jar-path}</file>
-              <repositoryId>${utilities.distribution.release.repo.id}</repositoryId>
+              <repositoryId>${pilecv4j.distribution.release.repo.id}</repositoryId>
               <generatePom>true</generatePom>
               <packaging>jar</packaging>
               <version>${opencv-version}</version>
               <groupId>ai.kognition.pilecv4j</groupId>
               <artifactId>opencv</artifactId>
-              <url>${utilities.distribution.release.repo.url}</url>
+              <url>${pilecv4j.distribution.release.repo.url}</url>
             </configuration>
           </execution>
         </executions>
-      </plugin>            
+      </plugin> -->
     </plugins>
   </build>
 

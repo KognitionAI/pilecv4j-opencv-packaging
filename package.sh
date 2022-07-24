@@ -12,6 +12,7 @@ usage() {
     echo "  --offline : Pass -o to maven."
     echo "  --version : Supply the version explicitly. This is to allow extended versions of opencv. E.g. \"3.4.3-cuda9.2\""
     echo "  --zip /path/to/zip: Create a zip file of the final installed directory with the headers and libraries."
+    echo "  --deploy-zip: Deploy the zip file created with the --zip option."
     exit 1
 }
 
@@ -101,6 +102,7 @@ MVN_TARGET=install
 DEPLOY_VERSION=
 ZIPUP=
 MVN_OFFLINE=
+DEPLOY_ZIP=
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -112,6 +114,10 @@ while [ $# -gt 0 ]; do
             MVN_TARGET=deploy
             shift
             ;;
+        "--deploy-zip")
+            DEPLOY_ZIP="-P deploy-opencv-dist-zip"
+            shift
+            ;;
         "--offline")
             MVN_OFFLINE=-o
             shift
@@ -121,7 +127,6 @@ while [ $# -gt 0 ]; do
             shift
             shift
             ;;
-
         "--zip")
             ZIPUP=$2
             shift
@@ -132,6 +137,12 @@ while [ $# -gt 0 ]; do
             ;;
     esac
 done
+
+# consistency checks
+if [ "$DEPLOY_ZIP" != "" -a "$ZIPUP" = "" ]; then
+    echo "ERROR: You specified --deploy-zip but didn't specify --zip."
+    usage
+fi
 
 OPENCV_VERSION=`grep OpenCV_VERSION "$OPENCV_MAKE" | head -1 | sed -e 's/^.*set(.*OpenCV_VERSION *//g' | sed -e 's/).*$//g'`
 OPENCV_SHORT_VERSION=`echo "$OPENCV_VERSION" | sed -e 's/\.//g'`
@@ -262,6 +273,6 @@ if [ "$ZIPUP" != "" ]; then
 
     set -e
     cd opencv-zip-install
-    "$MVN" -B $MVN_OFFLINE -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET
+    "$MVN" -B $MVN_OFFLINE -Dopencv-zip-path="$ZIP_PATH" -Dopencv-zip-version=$DEPLOY_VERSION clean $MVN_TARGET $DEPLOY_ZIP
     set +e
 fi

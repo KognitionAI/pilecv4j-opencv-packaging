@@ -32,14 +32,14 @@
 
   <distributionManagement>
     <repository>
-      <id>${utilities.distribution.release.repo.id}</id>
-      <name>Utilities release</name>
-      <url>${utilities.distribution.release.repo.url}</url>
+      <id>${pilecv4j.distribution.release.repo.id}</id>
+      <name>Pilecv4j release</name>
+      <url>${pilecv4j.distribution.release.repo.url}</url>
     </repository>
     <snapshotRepository>
-      <id>${utilities.distribution.snapshot.repo.id}</id>
-      <name>Utilities snapshot</name>
-      <url>${utilities.distribution.snapshot.repo.url}</url>
+      <id>${pilecv4j.distribution.snapshot.repo.id}</id>
+      <name>Pilecv4j snapshot</name>
+      <url>${pilecv4j.distribution.snapshot.repo.url}</url>
     </snapshotRepository>
   </distributionManagement>
 
@@ -108,21 +108,6 @@
       </properties>
     </profile>
     <profile>
-      <id>javadoc</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-              <aggregate>true</aggregate>
-              <additionalparam>-Xdoclint:none</additionalparam>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
       <id>sonatype-oss-release</id>
       <build>
         <plugins>
@@ -149,9 +134,9 @@
                 </goals>
               </execution>
             </executions>
-<!--            <configuration>
-              <aggregate>true</aggregate>
-            </configuration> -->
+<!--            <configuration> -->
+<!--              <doclint>none</doclint> -->
+<!--            </configuration> -->
           </plugin>
           <plugin>
             <groupId>org.sonatype.plugins</groupId>

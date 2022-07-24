@@ -112,6 +112,10 @@ usage() {
     echo "    --skip-packaging: Skip the packaging step. That is, only build opencv and opencv_contrib libraries but"
     echo "       don't package them in a jar file for use with net.dempsy.util.library.NativeLivbraryLoader"
     echo "    --deploy: perform a \"mvn deploy\" rather than just a \"mvn install\""
+    echo "    --deploy-zip: by default the zipped up opencv distribution created using --zip will not be deployed even"
+    echo "       when the --deploy flag is used. If you want to explicitly deploy it you'll need to include --deploy-zip"
+    echo "       also. Obviously if you specify --deploy-zip you must also request the opencv distribution be zipped"
+    echo "       using --zip"
     echo "    --offline: Pass -o to maven."
     echo ""
     echo " Build Options"
@@ -168,6 +172,7 @@ SKIPP=
 BUILD_SHARED="-DBUILD_SHARED_LIBS=OFF -DBUILD_FAT_JAVA_LIB=ON"
 BUILD_PYTHON="-DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF -DBUILD_opencv_python_bindings_generator=OFF"
 DEPLOY_ME=
+DEPLOY_ZIP=
 BUILD_SAMPLES=
 BUILD_CUDA=
 BUILD_QT=
@@ -241,6 +246,10 @@ while [ $# -gt 0 ]; do
             DEPLOY_ME="--deploy"
             shift
             ;;
+        "--deploy-zip")
+            DEPLOY_ZIP="--deploy-zip"
+            shift
+            ;;
         "--offline")
             OFFLINE=--offline
             shift
@@ -292,8 +301,14 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# consistency checks
 if [ "$OPENCV_VERSION" = "" ]; then
     echo "ERROR: you didn't specify and opencv version"
+    usage
+fi
+
+if [ "$DEPLOY_ZIP" != "" -a "$ZIPUP" = "" ]; then
+    echo "ERROR: You specified --deploy-zip but didn't specify --zip."
     usage
 fi
 
@@ -610,7 +625,11 @@ cd "$PROJDIR"
 
 if [ "$SKIPP" != "true" ]; then
     if [ "$ZIPUP" != "" ]; then
-        OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
+        if [ "$DEPLOY_ZIP" != "" ]; then
+            OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP" "$DEPLOY_ZIP"
+        else
+            OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME --zip "$ZIPUP"
+        fi
     else 
         OPENCV_INSTALL="$INSTALL_PREFIX" ./package.sh $OFFLINE --version "$DEPLOY_VERSION" $DEPLOY_ME
     fi
