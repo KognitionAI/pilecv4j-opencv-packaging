@@ -16,6 +16,8 @@
     <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
   </properties>
 
+  <url>git@github.com:KognitionAI/pilecv4j-opencv-packaging</url>
+
   <licenses>
     <license>
       <name>Apache 2</name>
