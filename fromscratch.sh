@@ -616,6 +616,9 @@ if [ "Linux" = "$PLAT" ]; then
     set -e
 fi
 
+# copy the cmake details into the install dir for potential later reference.
+cp "$WORKING_DIR/cmake.out" "$INSTALL_PREFIX"
+
 #=========================================
 # Comment out the actual build by including the next line
 #fi

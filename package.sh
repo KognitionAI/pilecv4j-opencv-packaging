@@ -222,6 +222,7 @@ if [ "Linux" = "$PLAT" ]; then
     fi
 fi
 
+cp "$OPENCV_INSTALL"/cmake.out "$OPENCV_LIBS_PATH"
 
 echo "Files to package:"
 ls -l "$OPENCV_LIBS_PATH"

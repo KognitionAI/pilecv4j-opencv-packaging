@@ -12,6 +12,7 @@
 
   <properties>
     <opencv-libs-path>src/temp/libs</opencv-libs-path>
+    <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
   <dependencies>
