@@ -239,11 +239,17 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN -B $MVN_OFFLINE clean $MVN_TARGET
+$MVN -B $MVN_OFFLINE clean install
 
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
+fi
+
+if [ "$MVN_TARGET" = "deploy" ]; then
+    cd package-native
+    $MVN -B $MVN_OFFLINE clean deploy
+    cd ..
 fi
 
 if [ "$RESET" = "true" ]; then
