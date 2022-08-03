@@ -139,6 +139,9 @@ usage() {
     echo "        option is untested on Windows). The cuda version will be determined by what's installed."
     echo "    --build-qt-support: Build the OpenCV using QT as the GUI implementation (Note: QT5 Must already be"
     echo "        installed, this option is untested on Windows)."
+    echo "    --build-gst-support: Build the OpenCV with gstreamer support. Normally, if you have gstreamer installed"
+    echo "        the default OpenCV build will detect it and build against it. This script disabled that by default."
+    echo "        If you want the OpenCV build's default behavior, use this option"
     echo "    --no-dnn: disable opencv's DNN support. As a note, OpenCV's DNN seems to conflict with Caffee. Disabling"
     echo "        OpenCV's DNN also means that DNN Object detection and the contrib module \"text\" is also disabled,"
     echo "        as is potentially other modules that depend on opencv's DNN support."
@@ -190,6 +193,7 @@ ZIPUP=
 OFFLINE=
 CONTRIB_OPTION=-DOPENCV_EXTRA_MODULES_PATH=../sources/opencv_contrib/modules
 CONTRIB="true"
+BUILD_GST="-DWITH_GSTREAMER=OFF"
 
 # The default is to build the DNN. This variable is set when we disable building the DNN
 BUILD_DNN=
@@ -286,6 +290,10 @@ while [ $# -gt 0 ]; do
             ;;
         "--build-qt-support")
             BUILD_QT="-DWITH_QT=ON"
+            shift
+            ;;
+        "--build-qt-support")
+            BUILD_GST=
             shift
             ;;
         "--no-dnn")
@@ -564,7 +572,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release -DWITH_GSTREAMER=OFF -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" $CONTRIB_OPTION $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release $BUILD_GST -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" $CONTRIB_OPTION $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 
