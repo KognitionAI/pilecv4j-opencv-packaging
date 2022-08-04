@@ -79,12 +79,29 @@
   </modules>
 
   <profiles>
+    <!-- Separate out this step so it never gets deployed as a pom file. -->
     <profile>
       <id>install-jar-build</id>
       <modules>
         <module>install-jar</module>
       </modules>
     </profile>
+    <!-- ==================== -->
+    <!-- OS sepcific profiles -->
+    <!-- ==================== -->
+    <profile>
+      <id>linux-aarch64</id>
+      <activation>
+        <os>
+          <family>linux</family>
+          <arch>aarch64</arch>
+        </os>
+      </activation>
+      <properties>
+        <platform>linux-aarch64</platform>
+      </properties>
+    </profile>
+    <!-- ==================== -->
     <profile>
       <id>linux-x86</id>
       <activation>
@@ -97,6 +114,7 @@
         <platform>linux-x86</platform>
       </properties>
     </profile>
+    <!-- ==================== -->
     <profile>
       <id>linux-64bit</id>
       <activation>
@@ -109,6 +127,7 @@
         <platform>linux-x86_64</platform>
       </properties>
     </profile>
+    <!-- ==================== -->
     <profile>
       <id>windows-x86_64</id>
       <activation>
@@ -121,6 +140,7 @@
         <platform>windows-x86_64</platform>
       </properties>
     </profile>
+    <!-- ==================== -->
     <profile>
       <id>windows-x86</id>
       <activation>
@@ -133,6 +153,9 @@
         <platform>windows-x86</platform>
       </properties>
     </profile>
+    <!-- ==================================================== -->
+    <!-- When releasing to the public, include these settings -->
+    <!-- ==================================================== -->
     <profile>
       <id>sonatype-oss-release</id>
       <build>
@@ -190,6 +213,7 @@
         </plugins>
       </build>
     </profile>
+    <!-- ==================================================== -->
   </profiles>
   
 </project>
