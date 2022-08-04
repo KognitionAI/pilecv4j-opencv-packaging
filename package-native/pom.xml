@@ -24,6 +24,7 @@
     <dependency>
       <groupId>ai.kognition.pilecv4j</groupId>
       <artifactId>opencv-install-jar</artifactId>
+      <optional>true</optional>
       <type>pom</type>
     </dependency>
   </dependencies>
