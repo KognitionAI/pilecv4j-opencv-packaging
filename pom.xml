@@ -14,7 +14,6 @@
     <opencv-jar>opencv-${opencv-short-version}.jar</opencv-jar>
     <opencv-version>${project.version}</opencv-version>
     <opencv-jar-path>${opencv-java-root}/${opencv-jar}</opencv-jar-path>
-    <maven.deploy.skip>true</maven.deploy.skip>
   </properties>
 
   <url>git@github.com:KognitionAI/pilecv4j-opencv-packaging</url>
@@ -66,15 +65,26 @@
         <artifactId>opencv</artifactId>
         <version>${opencv-version}</version>
       </dependency>
+      <dependency>
+        <groupId>ai.kognition.pilecv4j</groupId>
+        <artifactId>opencv-install-jar</artifactId>
+        <type>pom</type>
+        <version>${project.version}</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 
   <modules>
-    <module>install-jar</module>
     <module>package-native</module>
   </modules>
 
   <profiles>
+    <profile>
+      <id>install-jar-build</id>
+      <modules>
+        <module>install-jar</module>
+      </modules>
+    </profile>
     <profile>
       <id>linux-x86</id>
       <activation>

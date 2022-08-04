@@ -229,7 +229,7 @@ ls -l "$OPENCV_LIBS_PATH"
 
 echo "Setting version in the project."
 
-$MVN -B $MVN_OFFLINE versions:set -DnewVersion=$DEPLOY_VERSION
+$MVN -B $MVN_OFFLINE -Pinstall-jar-build versions:set -DnewVersion=$DEPLOY_VERSION
 if [ "$?" -ne 0 ]; then
     echo "Failed to set version. Please manually reset the project using \"git reset --hard HEAD\""
     exit 1
@@ -239,7 +239,7 @@ export OPENCV_SHORT_VERSION
 export OPENCV_INSTALL
 export OPENCV_JAVA_INSTALL_ROOT
 
-$MVN -B $MVN_OFFLINE clean install
+$MVN -B $MVN_OFFLINE -Pinstall-jar-build clean install
 
 if [ "$?" -ne 0 ]; then
     echo "Failed to install packaged opencv. Please manually reset the project using \"git reset --hard HEAD\""
@@ -247,9 +247,7 @@ if [ "$?" -ne 0 ]; then
 fi
 
 if [ "$MVN_TARGET" = "deploy" ]; then
-    cd package-native
     $MVN -B $MVN_OFFLINE clean deploy
-    cd ..
 fi
 
 if [ "$RESET" = "true" ]; then
