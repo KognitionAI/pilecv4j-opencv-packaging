@@ -161,5 +161,17 @@ This example will use the default `cmake-generator` for your Linux distribution.
 On Ubuntu, this is an example of the last build I did:
 
 ``` bash
-./fromscratch.sh -j12 --version 0.16 --opencv-version 4.5.2 --build-python --with-tbb --no-dnn --zip /tmp/opencv4.5.2.zip --install-prefix /opt/opencv --deploy
+ANT_HOME=/usr/share/ant ./fromscratch.sh -j12 --version 1.0 --opencv-version 4.5.2 --build-python --with-tbb --no-dnn --zip /tmp/opencv4.5.2.zip --install-prefix /opt/opencv --deploy
 ```
+
+Explanation:
+1. when you install `ant` on Ubuntu using `apt install` the `ant` executable is a link in `/usr/bin` but the build requires the ant install and wont figure it out from the link to ANT_HOME is explicitly provided.
+2. -j12 use 12 CPUs to compile in parallel
+3. The version of this release of the packaged jar file needs to be specified. `--version 1.0` does this.
+4. The version/tag of opencv we're building and bundling into this jar will be `4.5.2`
+5. We want to include python binds so `lib-python` doesn't need it's own opencv install. This is usually unnecessary since opencv is usually installed in the virtual environment the final app will need to run in anyway.
+6. build opencv against Intel's libtbb
+7. Don't build OpenCVs CuDNN functionality. You might want this but nothing in pilecv4j requires it.
+8. Create a zip file with the install called `/tmp/opencv4.5.2.zip`
+9. Install the development libraries at `/opt/opencv`. While a development install isn't needed to run pilecv4j, it is for building the native portions.
+
