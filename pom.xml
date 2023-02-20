@@ -3,7 +3,6 @@
   <groupId>ai.kognition.pilecv4j</groupId>
   <artifactId>opencv-packaging</artifactId>
   <version>0</version>
-  <name>OpenCV Packaging (${project.version})</name>
   <description>Package OpenCV into jar files for use with ai.kognition.pilecv4j</description>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>

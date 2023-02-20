@@ -247,7 +247,9 @@ if [ "$?" -ne 0 ]; then
 fi
 
 if [ "$MVN_TARGET" = "deploy" ]; then
+    cd package-native
     $MVN -B $MVN_OFFLINE clean deploy
+    cd ..
 fi
 
 if [ "$RESET" = "true" ]; then
