@@ -198,7 +198,7 @@ CONTRIB="true"
 BUILD_GST="-DWITH_GSTREAMER=OFF"
 
 # The default is to build the DNN. This variable is set when we disable building the DNN
-BUILD_DNN=-DBUILD_opencv_dnn=ON
+BUILD_DNN=-DBUILD_OPENCV_DNN=ON
 # default for use is to NOT build the internal protobuf
 BUILD_PROTOBUF="-DBUILD_PROTOBUF=OFF -DPROTOBUF_UPDATE_FILES=ON"
 INSTALL_PREFIX=
@@ -304,7 +304,7 @@ while [ $# -gt 0 ]; do
             ;;
         "--no-dnn")
             # These clash with an independent build of caffe. dnn_objdetect and text are dependent on dnn
-            BUILD_DNN="-DBUILD_opencv_dnn=OFF"
+            BUILD_DNN="-DBUILD_OPENCV_DNN=OFF"
             shift
             ;;
         "--build-protobuf")
