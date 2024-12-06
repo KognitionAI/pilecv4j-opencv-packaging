@@ -198,7 +198,7 @@ CONTRIB="true"
 BUILD_GST="-DWITH_GSTREAMER=OFF"
 
 # The default is to build the DNN. This variable is set when we disable building the DNN
-BUILD_DNN=
+BUILD_DNN=-DBUILD_opencv_dnn=ON
 # default for use is to NOT build the internal protobuf
 BUILD_PROTOBUF="-DBUILD_PROTOBUF=OFF -DPROTOBUF_UPDATE_FILES=ON"
 INSTALL_PREFIX=
