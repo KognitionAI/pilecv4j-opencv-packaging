@@ -145,6 +145,7 @@ usage() {
     echo "    --no-dnn: disable opencv's DNN support. As a note, OpenCV's DNN seems to conflict with Caffee. Disabling"
     echo "        OpenCV's DNN also means that DNN Object detection and the contrib module \"text\" is also disabled,"
     echo "        as is potentially other modules that depend on opencv's DNN support."
+    echo "    --build-cuda-dnn: This option will enable OpenCV's internal build of CUDA DNN. This will also require CUDA."
     echo "    --build-protobuf: This option will enable OpenCV's internal build of protobuf. While the raw OpenCV build"
     echo "        defaults to building this, this script defaults to blocking it since it tends to conflict with"
     echo "        other systems that also rely on protobufs. NOT selecting this option implies protobuf will need to be"
@@ -188,6 +189,7 @@ DEPLOY_ME=
 DEPLOY_ZIP=
 BUILD_SAMPLES=
 BUILD_CUDA=
+BUILD_CUDA_DNN=
 BUILD_QT=
 ZIPUP=
 OFFLINE=
@@ -275,6 +277,10 @@ while [ $# -gt 0 ]; do
             ;;
         "--build-samples")
             BUILD_SAMPLES="-DBUILD_EXAMPLES=ON"
+            shift
+            ;;
+        "--build-cuda-dnn")
+            BUILD_CUDA_DNN=="-D OPENCV_DNN_CUDA=ON"
             shift
             ;;
         "--build-cuda-support")
@@ -572,7 +578,7 @@ if [ "$CMAKE_PREFIX_PATH" != "" ]; then
     echo "CMAKE_PREFIX_PATH is set to \"$CMAKE_PREFIX_PATH\"" | tee -a "$WORKING_DIR/cmake.out"
 fi
 
-BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release $BUILD_GST -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" $CONTRIB_OPTION $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
+BUILD_CMD=$(echo "\"$CMAKE\" $CMAKE_GENERATOR_OPT -DCMAKE_BUILD_TYPE=Release $BUILD_GST -DOPENCV_ENABLE_NONFREE:BOOL=ON -DCMAKE_INSTALL_PREFIX=\"$(cwpath "$INSTALL_PREFIX")\" $CONTRIB_OPTION $BUILD_SHARED $BUILD_PYTHON $BUILD_SAMPLES $BUILD_CUDA $BUILD_CUDA_DNN $BUILD_QT $BUILD_DNN $BUILD_PROTOBUF $WITH_TBB -DENABLE_PRECOMPILED_HEADERS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DOPENCV_SKIP_VISIBILITY_HIDDEN=ON $OS_SPECIFIC_CMAKE_OPTIONS $CMAKE_ARCH ../sources/opencv")
 echo "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 eval "$BUILD_CMD" | tee -a "$WORKING_DIR/cmake.out"
 
